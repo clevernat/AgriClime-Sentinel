@@ -335,9 +335,9 @@ f4 = Drought Severity Score (0-100)
 ---
 
 **Document Prepared**: November 2024
-**Platform Status**: Production-ready, deployable
+**Platform Status**: Production-ready, deployed
 **Petitioner**: Nathaniel Oteng (otengabrokwah950@gmail.com)
-**Live Demo**: [URL to be added after Vercel deployment]
+**Live Demo**: https://agri-clime-sentinel-ng1cxkfz1-clevernats-projects.vercel.app
 **Source Code**: https://github.com/clevernat/AgriClime-Sentinel
 
 ---

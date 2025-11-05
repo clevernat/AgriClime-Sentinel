@@ -5,6 +5,10 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16.0-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 
+## 🚀 Live Demo
+
+**[https://agri-clime-sentinel-ng1cxkfz1-clevernats-projects.vercel.app](https://agri-clime-sentinel-ng1cxkfz1-clevernats-projects.vercel.app)**
+
 ## 🌾 Executive Summary
 
 **AgriClime Sentinel** is a comprehensive, real-time climate risk monitoring platform designed to protect U.S. agricultural security and food supply chains. This tool addresses a critical national need by providing farmers, policymakers, and agricultural insurers with actionable intelligence on climate-related threats to crop production.
