@@ -10,8 +10,8 @@ Get the platform running in under 30 minutes!
 ## Step 1: Clone and Install (2 minutes)
 
 ```bash
-git clone <your-repo-url>
-cd "AgriClime Sentinel"
+git clone https://github.com/clevernat/AgriClime-Sentinel.git
+cd AgriClime-Sentinel
 npm install
 ```
 
@@ -35,6 +35,7 @@ cp .env.example .env
 ```
 
 Edit `.env` and paste your Supabase credentials:
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxx...
@@ -71,14 +72,17 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## Troubleshooting
 
 ### "Failed to fetch map data"
+
 - Check that your `.env` file has the correct Supabase credentials
 - Verify the database schema was created successfully
 
 ### Map is empty
+
 - Make sure you ran both data population scripts
 - Check Supabase Table Editor to verify `counties` and `climate_data` have records
 
 ### Build errors
+
 - Run `npm install` again
 - Delete `node_modules` and `.next` folders, then reinstall
 
@@ -99,4 +103,3 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 **Estimated Total Time**: 20-30 minutes  
 **Result**: Fully functional climate risk dashboard
-

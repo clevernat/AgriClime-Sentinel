@@ -71,8 +71,8 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/agriclime-sentinel.git
-cd agriclime-sentinel
+git clone https://github.com/clevernat/AgriClime-Sentinel.git
+cd AgriClime-Sentinel
 ```
 
 ### Step 2: Install Dependencies
@@ -125,6 +125,7 @@ tsx scripts/populate-counties.ts
 ```
 
 **Expected output**:
+
 ```
 Fetching county GeoJSON data...
 Found 3220 counties
@@ -145,6 +146,7 @@ tsx scripts/populate-sample-data.ts
 ```
 
 **Expected output**:
+
 ```
 Fetching counties...
 Generating sample data for 3220 counties...
@@ -177,7 +179,7 @@ Inserted 1000/96600 records
 2. Push your code:
 
 ```bash
-git remote add origin https://github.com/yourusername/agriclime-sentinel.git
+git remote add origin https://github.com/clevernat/AgriClime-Sentinel.git
 git add .
 git commit -m "Initial commit"
 git push -u origin main
@@ -223,6 +225,7 @@ In the Vercel project settings:
 ### Issue: Map not displaying
 
 **Solution**:
+
 - Check browser console for errors
 - Ensure Leaflet CSS is imported in `app/layout.tsx`
 - Verify that county data is populated in the database
@@ -230,6 +233,7 @@ In the Vercel project settings:
 ### Issue: "Failed to fetch map data" error
 
 **Solution**:
+
 - Check that environment variables are set correctly
 - Verify Supabase connection by testing in SQL Editor
 - Check browser network tab for API errors
@@ -237,6 +241,7 @@ In the Vercel project settings:
 ### Issue: No data showing on map
 
 **Solution**:
+
 - Verify that `climate_data` table has records
 - Check that materialized views are populated:
   ```sql
@@ -251,6 +256,7 @@ In the Vercel project settings:
 ### Issue: TypeScript errors during build
 
 **Solution**:
+
 - Run `npm install` to ensure all dependencies are installed
 - Check that `@types/leaflet` is in devDependencies
 - Clear `.next` folder and rebuild:
@@ -262,6 +268,7 @@ In the Vercel project settings:
 ### Issue: Slow map performance
 
 **Solution**:
+
 - Ensure database indexes are created (check `schema.sql`)
 - Consider reducing the number of counties displayed
 - Implement pagination or clustering for large datasets
@@ -284,10 +291,9 @@ If you encounter issues not covered here:
 
 1. Check the [main README](../README.md)
 2. Review the [database schema](../database/schema.sql)
-3. Open an issue on GitHub
-4. Contact: [your.email@example.com]
+3. Open an issue on GitHub: [AgriClime-Sentinel Issues](https://github.com/clevernat/AgriClime-Sentinel/issues)
+4. Contact: otengabrokwah950@gmail.com
 
 ---
 
 **Last Updated**: November 2024
-

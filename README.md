@@ -398,11 +398,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👤 Author
 
-**[Your Name]**
+**Nathaniel Oteng**
 
-- Portfolio: [your-portfolio.com]
-- LinkedIn: [linkedin.com/in/yourprofile]
-- Email: [your.email@example.com]
+- Email: otengabrokwah950@gmail.com
+- GitHub: [@clevernat](https://github.com/clevernat)
+- Project Repository: [AgriClime-Sentinel](https://github.com/clevernat/AgriClime-Sentinel)
 
 ---
 
@@ -419,9 +419,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For questions, suggestions, or collaboration opportunities:
 
-- Open an issue on GitHub
-- Email: [your.email@example.com]
-- Twitter: [@yourhandle]
+- Open an issue on GitHub: [AgriClime-Sentinel Issues](https://github.com/clevernat/AgriClime-Sentinel/issues)
+- Email: otengabrokwah950@gmail.com
+- GitHub: [@clevernat](https://github.com/clevernat)
 
 ---
 

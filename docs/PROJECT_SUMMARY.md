@@ -7,6 +7,7 @@ A complete, production-ready full-stack web application for monitoring climate r
 ### ✅ Completed Components
 
 #### 1. **Frontend Application**
+
 - ✅ Next.js 16 with React 19 and TypeScript
 - ✅ Responsive UI with Tailwind CSS
 - ✅ Interactive map visualization with Leaflet.js
@@ -15,6 +16,7 @@ A complete, production-ready full-stack web application for monitoring climate r
 - ✅ Modal-based regional dashboard
 
 #### 2. **Backend Infrastructure**
+
 - ✅ Next.js API Routes for RESTful endpoints
 - ✅ PostgreSQL database schema with PostGIS
 - ✅ Materialized views for performance
@@ -22,22 +24,26 @@ A complete, production-ready full-stack web application for monitoring climate r
 - ✅ Optimized indexes for geospatial queries
 
 #### 3. **Data Models & Types**
+
 - ✅ TypeScript interfaces for all data structures
 - ✅ County, climate data, and risk index types
 - ✅ Map layer configurations
 - ✅ Crop type definitions with growth stages
 
 #### 4. **API Endpoints**
+
 - ✅ `/api/counties` - Get all counties or search
 - ✅ `/api/counties/[fips]` - Get specific county data
 - ✅ `/api/map-data` - Get data for map layers
 - ✅ `/api/regional-dashboard` - Get detailed regional data
 
 #### 5. **Data Population Scripts**
+
 - ✅ `populate-counties.ts` - Fetch and load U.S. county GeoJSON
 - ✅ `populate-sample-data.ts` - Generate realistic climate data
 
 #### 6. **Documentation**
+
 - ✅ Comprehensive README with methodology
 - ✅ Setup guide for developers
 - ✅ EB2-NIW petition documentation
@@ -46,6 +52,7 @@ A complete, production-ready full-stack web application for monitoring climate r
 ### 📊 Features Implemented
 
 #### User Story 1: National Risk Map ✅
+
 - Interactive choropleth map of all U.S. counties
 - 5 toggleable data layers:
   - Drought Status
@@ -57,6 +64,7 @@ A complete, production-ready full-stack web application for monitoring climate r
 - Click-to-select county functionality
 
 #### User Story 2: Regional Deep-Dive Dashboard ✅
+
 - Modal dashboard triggered by county selection
 - Current climate conditions display
 - Year-to-date metrics (GDD, extreme heat days)
@@ -64,6 +72,7 @@ A complete, production-ready full-stack web application for monitoring climate r
 - Interactive charts for historical trends
 
 #### User Story 3: Crop Yield Risk Index ✅
+
 - Proprietary risk scoring algorithm
 - Crop-specific risk calculations
 - 5 major crops supported (corn, wheat, soybeans, cotton, rice)
@@ -71,6 +80,7 @@ A complete, production-ready full-stack web application for monitoring climate r
 - Weighted composite scoring
 
 #### User Story 4: Historical Climate Trend Analysis ✅
+
 - 50-year drought event tracking
 - Frequency and severity trend visualization
 - Extreme heat day analysis
@@ -81,6 +91,7 @@ A complete, production-ready full-stack web application for monitoring climate r
 ## Technology Stack
 
 ### Frontend
+
 - **Next.js 16.0** - React framework with SSR
 - **React 19.2** - UI library
 - **TypeScript 5.0** - Type safety
@@ -89,12 +100,14 @@ A complete, production-ready full-stack web application for monitoring climate r
 - **Recharts** - Data visualization
 
 ### Backend
+
 - **Next.js API Routes** - RESTful API
 - **PostgreSQL 15** - Database
 - **PostGIS** - Geospatial extension
 - **Supabase** - Database hosting
 
 ### Data Sources
+
 - **Open-Meteo API** - Historical weather data
 - **NOAA U.S. Drought Monitor** - Drought classifications
 - **USGS** - County boundaries (GeoJSON)
@@ -202,11 +215,13 @@ git push origin main
 ## What's NOT Included (Future Work)
 
 ### Data Integration
+
 - ❌ Real-time Open-Meteo API integration (sample data only)
 - ❌ NOAA Drought Monitor weekly updates
 - ❌ Automated data refresh pipelines
 
 ### Advanced Features
+
 - ❌ User authentication and saved preferences
 - ❌ Email/SMS alerts for high-risk events
 - ❌ Mobile applications (iOS/Android)
@@ -214,6 +229,7 @@ git push origin main
 - ❌ Economic impact modeling
 
 ### Production Optimizations
+
 - ❌ CDN for static assets
 - ❌ Database connection pooling
 - ❌ Rate limiting on API endpoints
@@ -221,6 +237,7 @@ git push origin main
 - ❌ Analytics (Google Analytics, Plausible)
 
 ### Testing
+
 - ❌ Unit tests
 - ❌ Integration tests
 - ❌ E2E tests
@@ -230,14 +247,18 @@ git push origin main
 ## Estimated Time to Production
 
 ### Minimal Viable Product (MVP)
+
 **Time**: 2-4 hours
+
 - Set up Supabase
 - Populate sample data
 - Deploy to Vercel
 - **Result**: Functional demo with synthetic data
 
 ### Production-Ready with Real Data
+
 **Time**: 1-2 weeks
+
 - Integrate Open-Meteo API
 - Set up automated data pipelines
 - Add error handling and monitoring
@@ -245,7 +266,9 @@ git push origin main
 - **Result**: Live platform with real climate data
 
 ### Full-Featured Platform
+
 **Time**: 2-3 months
+
 - Add user authentication
 - Implement alert system
 - Build mobile apps
@@ -258,6 +281,7 @@ git push origin main
 ## Key Metrics
 
 ### Code Statistics
+
 - **Total Files**: 25+
 - **Lines of Code**: ~3,500
 - **TypeScript Coverage**: 100%
@@ -267,6 +291,7 @@ git push origin main
 - **Custom SQL Functions**: 3
 
 ### Data Capacity
+
 - **Counties**: 3,143 (all U.S. counties)
 - **Climate Records**: Scalable to millions
 - **Historical Range**: 50+ years supported
@@ -278,38 +303,43 @@ git push origin main
 ## For EB2-NIW Petition
 
 ### Evidence of Substantial Merit
+
 ✅ Comprehensive README documenting national importance  
 ✅ Detailed methodology for Crop Yield Risk Index  
 ✅ Technical architecture and data pipeline diagrams  
 ✅ Evidence of innovation (proprietary algorithm)  
-✅ Validation methodology and accuracy metrics  
+✅ Validation methodology and accuracy metrics
 
 ### Evidence of National Importance
+
 ✅ Economic impact analysis ($1.1T agriculture sector)  
 ✅ Food security implications  
 ✅ Climate adaptation strategy alignment  
 ✅ Comparison to existing solutions  
-✅ Broader impacts beyond agriculture  
+✅ Broader impacts beyond agriculture
 
 ### Evidence of Ability to Advance
+
 ✅ Fully functional platform (not just a proposal)  
 ✅ Production-ready code  
 ✅ Scalable architecture  
 ✅ Clear development roadmap  
-✅ Open-source contribution  
+✅ Open-source contribution
 
 ### Supporting Materials
+
 ✅ Technical documentation  
 ✅ Database schema  
 ✅ API documentation  
 ✅ Setup guide for reproducibility  
-✅ Screenshots and visualizations (to be added)  
+✅ Screenshots and visualizations (to be added)
 
 ---
 
 ## Recommended Next Actions
 
 ### Immediate (Before Petition)
+
 1. ✅ Deploy to Vercel with sample data
 2. ✅ Take screenshots of all features
 3. ✅ Create demo video (optional but recommended)
@@ -317,6 +347,7 @@ git push origin main
 5. ✅ Prepare letters of support requests
 
 ### Short-term (1-3 months)
+
 1. Integrate real Open-Meteo data
 2. Add user testimonials
 3. Present at agricultural conferences
@@ -324,6 +355,7 @@ git push origin main
 5. Seek partnerships with universities/USDA
 
 ### Long-term (6-12 months)
+
 1. Expand to additional crops
 2. Add ML predictions
 3. Build mobile apps
@@ -336,11 +368,11 @@ git push origin main
 
 - **Technical Issues**: See `docs/SETUP_GUIDE.md`
 - **EB2-NIW Documentation**: See `docs/EB2_NIW_DOCUMENTATION.md`
-- **General Questions**: [your.email@example.com]
+- **General Questions**: otengabrokwah950@gmail.com
+- **GitHub Issues**: [AgriClime-Sentinel Issues](https://github.com/clevernat/AgriClime-Sentinel/issues)
 
 ---
 
 **Project Status**: ✅ Complete and ready for deployment  
 **Last Updated**: November 2024  
 **Version**: 1.0.0
-
