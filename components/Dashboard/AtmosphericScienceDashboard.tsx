@@ -266,46 +266,46 @@ export default function AtmosphericScienceDashboard({
         <div className="flex border-b-2 border-gray-300 bg-white overflow-x-auto scrollbar-hide shadow-sm">
           <button
             onClick={() => setActiveTab("alerts")}
-            className={`flex-shrink-0 py-4 px-5 sm:px-6 md:px-8 font-bold text-base transition-all whitespace-nowrap flex items-center gap-2 ${
+            className={`flex-shrink-0 py-3 px-3 sm:px-5 md:px-8 font-bold text-xs sm:text-sm md:text-base transition-all whitespace-nowrap flex items-center gap-1.5 sm:gap-2 ${
               activeTab === "alerts"
                 ? "bg-blue-50 text-blue-700 border-b-4 border-blue-600"
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
             }`}
           >
-            <AlertTriangle size={18} />
+            <AlertTriangle size={16} className="sm:w-[18px] sm:h-[18px]" />
             <span>Alerts</span>
           </button>
           <button
             onClick={() => setActiveTab("severe")}
-            className={`flex-shrink-0 py-4 px-5 sm:px-6 md:px-8 font-bold text-base transition-all whitespace-nowrap flex items-center gap-2 ${
+            className={`flex-shrink-0 py-3 px-3 sm:px-5 md:px-8 font-bold text-xs sm:text-sm md:text-base transition-all whitespace-nowrap flex items-center gap-1.5 sm:gap-2 ${
               activeTab === "severe"
                 ? "bg-blue-50 text-blue-700 border-b-4 border-blue-600"
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
             }`}
           >
-            <Wind size={18} />
+            <Wind size={16} className="sm:w-[18px] sm:h-[18px]" />
             <span>Severe</span>
           </button>
           <button
             onClick={() => setActiveTab("airquality")}
-            className={`flex-shrink-0 py-4 px-5 sm:px-6 md:px-8 font-bold text-base transition-all whitespace-nowrap flex items-center gap-2 ${
+            className={`flex-shrink-0 py-3 px-3 sm:px-5 md:px-8 font-bold text-xs sm:text-sm md:text-base transition-all whitespace-nowrap flex items-center gap-1.5 sm:gap-2 ${
               activeTab === "airquality"
                 ? "bg-blue-50 text-blue-700 border-b-4 border-blue-600"
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
             }`}
           >
-            <Cloud size={18} />
+            <Cloud size={16} className="sm:w-[18px] sm:h-[18px]" />
             <span>Air Quality</span>
           </button>
           <button
             onClick={() => setActiveTab("trends")}
-            className={`flex-shrink-0 py-4 px-5 sm:px-6 md:px-8 font-bold text-base transition-all whitespace-nowrap flex items-center gap-2 ${
+            className={`flex-shrink-0 py-3 px-3 sm:px-5 md:px-8 font-bold text-xs sm:text-sm md:text-base transition-all whitespace-nowrap flex items-center gap-1.5 sm:gap-2 ${
               activeTab === "trends"
                 ? "bg-blue-50 text-blue-700 border-b-4 border-blue-600"
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
             }`}
           >
-            <TrendingUp size={18} />
+            <TrendingUp size={16} className="sm:w-[18px] sm:h-[18px]" />
             <span>Trends</span>
           </button>
         </div>
@@ -315,7 +315,7 @@ export default function AtmosphericScienceDashboard({
           {/* Weather Alerts Tab */}
           {activeTab === "alerts" && (
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
                 Active Weather Alerts
               </h3>
 
@@ -394,8 +394,8 @@ export default function AtmosphericScienceDashboard({
 
           {/* Severe Weather Tab */}
           {activeTab === "severe" && (
-            <div className="space-y-4 sm:space-y-6">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
+            <div className="space-y-3 sm:space-y-4 md:space-y-6">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-3 md:mb-4">
                 Severe Weather Analysis
               </h3>
 
@@ -421,21 +421,21 @@ export default function AtmosphericScienceDashboard({
                 <>
                   {/* Threat Assessment */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-300 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-shadow">
-                      <div className="flex items-center justify-between mb-2 sm:mb-3">
-                        <Wind className="text-orange-600" size={24} />
-                        <span className="text-xs font-semibold text-orange-700 bg-orange-200 px-2 py-1 rounded-full">
+                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-300 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 shadow-lg hover:shadow-xl transition-shadow">
+                      <div className="flex items-center justify-between mb-2">
+                        <Wind className="text-orange-600" size={20} />
+                        <span className="text-xs font-semibold text-orange-700 bg-orange-200 px-2 py-0.5 rounded-full">
                           STP:{" "}
                           {severeWeatherIndices.significantTornadoParameter.toFixed(
                             2
                           )}
                         </span>
                       </div>
-                      <h4 className="text-base sm:text-lg font-semibold text-gray-700 mb-1 sm:mb-2">
+                      <h4 className="text-sm sm:text-base md:text-lg font-semibold text-gray-700 mb-1">
                         Tornado Potential
                       </h4>
                       <p
-                        className={`text-3xl sm:text-4xl font-bold ${getPotentialColor(
+                        className={`text-2xl sm:text-3xl md:text-4xl font-bold ${getPotentialColor(
                           severeWeatherIndices.tornadoPotential
                         )}`}
                       >
@@ -443,21 +443,21 @@ export default function AtmosphericScienceDashboard({
                       </p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-300 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-shadow">
-                      <div className="flex items-center justify-between mb-2 sm:mb-3">
-                        <Activity className="text-red-600" size={24} />
-                        <span className="text-xs font-semibold text-red-700 bg-red-200 px-2 py-1 rounded-full">
+                    <div className="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-300 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 shadow-lg hover:shadow-xl transition-shadow">
+                      <div className="flex items-center justify-between mb-2">
+                        <Activity className="text-red-600" size={20} />
+                        <span className="text-xs font-semibold text-red-700 bg-red-200 px-2 py-0.5 rounded-full">
                           SCP:{" "}
                           {severeWeatherIndices.supercellCompositeParameter.toFixed(
                             2
                           )}
                         </span>
                       </div>
-                      <h4 className="text-base sm:text-lg font-semibold text-gray-700 mb-1 sm:mb-2">
+                      <h4 className="text-sm sm:text-base md:text-lg font-semibold text-gray-700 mb-1">
                         Severe Thunderstorm
                       </h4>
                       <p
-                        className={`text-3xl sm:text-4xl font-bold ${getPotentialColor(
+                        className={`text-2xl sm:text-3xl md:text-4xl font-bold ${getPotentialColor(
                           severeWeatherIndices.severeThunderstormPotential
                         )}`}
                       >
@@ -465,18 +465,18 @@ export default function AtmosphericScienceDashboard({
                       </p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-shadow">
-                      <div className="flex items-center justify-between mb-2 sm:mb-3">
-                        <Cloud className="text-purple-600" size={24} />
-                        <span className="text-xs font-semibold text-purple-700 bg-purple-200 px-2 py-1 rounded-full">
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 shadow-lg hover:shadow-xl transition-shadow">
+                      <div className="flex items-center justify-between mb-2">
+                        <Cloud className="text-purple-600" size={20} />
+                        <span className="text-xs font-semibold text-purple-700 bg-purple-200 px-2 py-0.5 rounded-full">
                           CAPE: {severeWeatherIndices.cape.toFixed(0)} J/kg
                         </span>
                       </div>
-                      <h4 className="text-base sm:text-lg font-semibold text-gray-700 mb-1 sm:mb-2">
+                      <h4 className="text-sm sm:text-base md:text-lg font-semibold text-gray-700 mb-1">
                         Hail Potential
                       </h4>
                       <p
-                        className={`text-3xl sm:text-4xl font-bold ${getPotentialColor(
+                        className={`text-2xl sm:text-3xl md:text-4xl font-bold ${getPotentialColor(
                           severeWeatherIndices.hailPotential
                         )}`}
                       >
