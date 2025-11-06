@@ -875,8 +875,11 @@ export default function AtmosphericScienceDashboard({
                                     }10`,
                                   }}
                                 >
-                                  <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">
-                                    {obs.parameterName}
+                                  <p
+                                    className="text-xs sm:text-sm font-semibold mb-1 sm:mb-2"
+                                    style={{ color: "#374151" }}
+                                  >
+                                    {obs.parameterName || "Unknown Pollutant"}
                                   </p>
                                   <p
                                     className="text-3xl sm:text-4xl md:text-5xl font-bold mb-1 sm:mb-2"
@@ -884,7 +887,9 @@ export default function AtmosphericScienceDashboard({
                                       color: obs.category?.color || "#666",
                                     }}
                                   >
-                                    {obs.aqi}
+                                    {obs.aqi !== undefined && obs.aqi !== null
+                                      ? obs.aqi
+                                      : "N/A"}
                                   </p>
                                   <p
                                     className="text-xs sm:text-sm font-semibold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full inline-block"
