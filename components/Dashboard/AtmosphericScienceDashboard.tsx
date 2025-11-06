@@ -633,13 +633,16 @@ export default function AtmosphericScienceDashboard({
                     No Air Quality Data Available
                   </h4>
                   <p className="text-gray-600 mb-4 max-w-2xl mx-auto">
-                    Real-time air quality measurements from EPA AirNow are not currently available for this location. Air quality monitoring stations may not be present in this area.
+                    Real-time air quality measurements from EPA AirNow are not
+                    currently available for this location. Air quality
+                    monitoring stations may not be present in this area.
                   </p>
                   <p className="text-sm text-gray-500 mb-2">
                     Data Source: EPA AirNow API
                   </p>
                   <p className="text-xs text-gray-400">
-                    Try selecting a county with a major city for real-time air quality data.
+                    Try selecting a county with a major city for real-time air
+                    quality data.
                   </p>
                 </div>
               ) : (
@@ -849,12 +852,17 @@ export default function AtmosphericScienceDashboard({
 
               {!climateTrends || !climateTrends.trend ? (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300 rounded-xl p-12 text-center shadow-lg">
-                  <TrendingUp className="mx-auto mb-4 text-gray-400" size={64} />
+                  <TrendingUp
+                    className="mx-auto mb-4 text-gray-400"
+                    size={64}
+                  />
                   <h4 className="text-2xl font-bold text-gray-700 mb-3">
                     No Climate Trend Data Available
                   </h4>
                   <p className="text-gray-600 mb-4 max-w-2xl mx-auto">
-                    Historical climate trend data from Open-Meteo is not currently available for this location. This may be due to API limitations or data availability issues.
+                    Historical climate trend data from Open-Meteo is not
+                    currently available for this location. This may be due to
+                    API limitations or data availability issues.
                   </p>
                   <p className="text-sm text-gray-500">
                     Data Source: Open-Meteo Historical Weather API
@@ -1053,20 +1061,6 @@ export default function AtmosphericScienceDashboard({
                     </div>
                   )}
                 </>
-              ) : (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                  <TrendingUp
-                    size={64}
-                    className="mx-auto text-gray-400 mb-4"
-                  />
-                  <p className="text-gray-600">
-                    No climate trend data available for this location
-                  </p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Insufficient historical data for trend analysis
-                  </p>
-                </div>
-              </>
               )}
             </div>
           )}
