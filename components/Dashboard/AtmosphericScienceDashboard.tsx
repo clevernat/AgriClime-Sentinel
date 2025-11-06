@@ -700,23 +700,26 @@ export default function AtmosphericScienceDashboard({
 
           {/* Air Quality Tab */}
           {activeTab === "airquality" && (
-            <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">
+            <div className="space-y-4 sm:space-y-6">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
                 Air Quality Analysis
               </h3>
 
               {!airQuality || !airQuality.overall ? (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300 rounded-xl p-12 text-center shadow-lg">
-                  <Cloud className="mx-auto mb-4 text-gray-400" size={64} />
-                  <h4 className="text-2xl font-bold text-gray-700 mb-3">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300 rounded-lg sm:rounded-xl p-6 sm:p-8 md:p-12 text-center shadow-lg">
+                  <Cloud
+                    className="mx-auto mb-3 sm:mb-4 text-gray-400"
+                    size={48}
+                  />
+                  <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-700 mb-2 sm:mb-3">
                     No Air Quality Data Available
                   </h4>
-                  <p className="text-gray-600 mb-4 max-w-2xl mx-auto">
+                  <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 max-w-2xl mx-auto">
                     Real-time air quality measurements from EPA AirNow are not
                     currently available for this location. Air quality
                     monitoring stations may not be present in this area.
                   </p>
-                  <p className="text-sm text-gray-500 mb-2">
+                  <p className="text-xs sm:text-sm text-gray-500 mb-2">
                     Data Source: EPA AirNow API
                   </p>
                   <p className="text-xs text-gray-400">
@@ -727,29 +730,29 @@ export default function AtmosphericScienceDashboard({
               ) : (
                 <>
                   {/* Overall AQI */}
-                  <div className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl p-8 shadow-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="text-xl font-semibold text-gray-700 mb-4">
+                  <div className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 md:p-8 shadow-lg">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="flex-1 w-full">
+                        <h4 className="text-base sm:text-lg md:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
                           Overall Air Quality Index
                         </h4>
-                        <div className="flex items-baseline space-x-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-baseline gap-3 sm:gap-4">
                           <p
-                            className="text-7xl font-bold"
+                            className="text-5xl sm:text-6xl md:text-7xl font-bold"
                             style={{ color: airQuality.overall.category.color }}
                           >
                             {airQuality.overall.aqi}
                           </p>
                           <div>
                             <p
-                              className="text-3xl font-semibold"
+                              className="text-xl sm:text-2xl md:text-3xl font-semibold"
                               style={{
                                 color: airQuality.overall.category.color,
                               }}
                             >
                               {airQuality.overall.category.name}
                             </p>
-                            <p className="text-sm text-gray-600 mt-1">
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1">
                               Dominant:{" "}
                               <span className="font-semibold">
                                 {airQuality.overall.dominantPollutant}
@@ -759,7 +762,7 @@ export default function AtmosphericScienceDashboard({
                         </div>
                       </div>
                       <div
-                        className="w-40 h-40 rounded-full flex items-center justify-center text-white text-5xl font-bold shadow-2xl"
+                        className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center text-white text-3xl sm:text-4xl md:text-5xl font-bold shadow-2xl flex-shrink-0"
                         style={{
                           backgroundColor: airQuality.overall.category.color,
                         }}
@@ -771,9 +774,9 @@ export default function AtmosphericScienceDashboard({
 
                   {/* Health Recommendations */}
                   {airQuality.recommendations && (
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 shadow-sm">
-                      <h4 className="text-xl font-bold text-green-900 mb-4 flex items-center">
-                        <Activity className="mr-2" size={24} />
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-sm">
+                      <h4 className="text-base sm:text-lg md:text-xl font-bold text-green-900 mb-3 sm:mb-4 flex items-center">
+                        <Activity className="mr-2" size={20} />
                         Health Recommendations
                       </h4>
                       <div className="space-y-4">
@@ -812,16 +815,16 @@ export default function AtmosphericScienceDashboard({
                   {airQuality.observations &&
                     airQuality.observations.length > 0 && (
                       <>
-                        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                          <h4 className="text-xl font-bold text-gray-800 mb-4">
+                        <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-sm">
+                          <h4 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
                             Individual Pollutant Levels
                           </h4>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                             {airQuality.observations.map(
                               (obs, index: number) => (
                                 <div
                                   key={index}
-                                  className="border-2 rounded-xl p-5 text-center hover:shadow-lg transition-shadow"
+                                  className="border-2 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5 text-center hover:shadow-lg transition-shadow"
                                   style={{
                                     borderColor:
                                       obs.category?.color || "#E5E7EB",
@@ -830,11 +833,11 @@ export default function AtmosphericScienceDashboard({
                                     }10`,
                                   }}
                                 >
-                                  <p className="text-sm font-semibold text-gray-700 mb-2">
+                                  <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">
                                     {obs.parameterName}
                                   </p>
                                   <p
-                                    className="text-5xl font-bold mb-2"
+                                    className="text-3xl sm:text-4xl md:text-5xl font-bold mb-1 sm:mb-2"
                                     style={{
                                       color: obs.category?.color || "#666",
                                     }}
@@ -842,7 +845,7 @@ export default function AtmosphericScienceDashboard({
                                     {obs.aqi}
                                   </p>
                                   <p
-                                    className="text-sm font-semibold px-3 py-1 rounded-full inline-block"
+                                    className="text-xs sm:text-sm font-semibold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full inline-block"
                                     style={{
                                       color: obs.category?.color || "#666",
                                       backgroundColor: `${
@@ -859,8 +862,8 @@ export default function AtmosphericScienceDashboard({
                         </div>
 
                         {/* Pollutants Bar Chart */}
-                        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                          <h4 className="text-xl font-bold text-gray-800 mb-4">
+                        <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-sm">
+                          <h4 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
                             Pollutant Comparison
                           </h4>
                           <ResponsiveContainer width="100%" height={300}>
@@ -924,26 +927,26 @@ export default function AtmosphericScienceDashboard({
 
           {/* Climate Trends Tab */}
           {activeTab === "trends" && (
-            <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">
+            <div className="space-y-4 sm:space-y-6">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
                 Climate Trend Analysis
               </h3>
 
               {!climateTrends || !climateTrends.trend ? (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300 rounded-xl p-12 text-center shadow-lg">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300 rounded-lg sm:rounded-xl p-6 sm:p-8 md:p-12 text-center shadow-lg">
                   <TrendingUp
-                    className="mx-auto mb-4 text-gray-400"
-                    size={64}
+                    className="mx-auto mb-3 sm:mb-4 text-gray-400"
+                    size={48}
                   />
-                  <h4 className="text-2xl font-bold text-gray-700 mb-3">
+                  <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-700 mb-2 sm:mb-3">
                     No Climate Trend Data Available
                   </h4>
-                  <p className="text-gray-600 mb-4 max-w-2xl mx-auto">
+                  <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 max-w-2xl mx-auto">
                     Historical climate trend data from Open-Meteo is not
                     currently available for this location. This may be due to
                     API limitations or data availability issues.
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs sm:text-sm text-gray-500">
                     Data Source: Open-Meteo Historical Weather API
                   </p>
                 </div>
