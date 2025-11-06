@@ -17,6 +17,14 @@ export const metadata: Metadata = {
   title: "AgriClime Sentinel - Climate Risk Dashboard for U.S. Agriculture",
   description:
     "Real-time climate risk monitoring platform for U.S. agricultural security. Track drought, soil moisture, temperature anomalies, and crop yield risks across all U.S. counties.",
+  icons: {
+    icon: [
+      {
+        url: "/favicon.svg",
+        type: "image/svg+xml",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

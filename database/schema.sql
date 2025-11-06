@@ -130,15 +130,15 @@ $$ LANGUAGE plpgsql;
 
 -- Materialized view for 30-day precipitation totals
 CREATE MATERIALIZED VIEW IF NOT EXISTS precipitation_30day AS
-SELECT 
-    county_fips,
+SELECT
+    county_fips as fips,
     SUM(precipitation) as total_precipitation,
     MAX(date) as latest_date
 FROM climate_data
 WHERE date >= CURRENT_DATE - INTERVAL '30 days'
 GROUP BY county_fips;
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_precip_30day_county ON precipitation_30day(county_fips);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_precip_30day_county ON precipitation_30day(fips);
 
 -- Function to calculate temperature anomaly
 CREATE OR REPLACE FUNCTION calculate_temperature_anomaly(

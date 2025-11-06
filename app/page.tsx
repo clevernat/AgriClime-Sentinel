@@ -9,11 +9,6 @@ import MapLegend from "@/components/Map/MapLegend";
 // Dynamically import map component to avoid SSR issues with Leaflet
 const CountyMap = dynamic(() => import("@/components/Map/CountyMap"), {
   ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-gray-100">
-      <div className="text-lg font-semibold">Loading map...</div>
-    </div>
-  ),
 });
 
 const RegionalDashboard = dynamic(
@@ -21,27 +16,128 @@ const RegionalDashboard = dynamic(
   { ssr: false }
 );
 
+const AtmosphericScienceDashboard = dynamic(
+  () => import("@/components/Dashboard/AtmosphericScienceDashboard"),
+  { ssr: false }
+);
+
 export default function Home() {
   const [selectedLayer, setSelectedLayer] = useState<MapDataLayer>("drought");
   const [selectedCrop, setSelectedCrop] = useState<CropType>("corn");
   const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
+  const [selectedCountyData, setSelectedCountyData] = useState<any>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [dashboardType, setDashboardType] = useState<
+    "agricultural" | "atmospheric"
+  >("atmospheric");
 
-  const handleCountyClick = (fips: string) => {
-    setSelectedCounty(fips);
+  const handleCountyClick = async (fips: string) => {
+    setIsTransitioning(true);
+
+    // Fetch county data to get coordinates
+    try {
+      const response = await fetch("/api/counties");
+      const counties = await response.json();
+      const county = counties.find((c: any) => c.fips === fips);
+
+      if (county) {
+        // Use pre-calculated centroid from API if available
+        const latitude = county.centroid?.latitude || 39.8283; // Default: center of US
+        const longitude = county.centroid?.longitude || -98.5795;
+
+        setSelectedCountyData({
+          fips,
+          name: county.name,
+          state: county.state,
+          latitude,
+          longitude,
+        });
+      } else {
+        // County not found, use default location
+        console.warn("County not found:", fips);
+        setSelectedCountyData({
+          fips,
+          name: "Unknown",
+          state: "Unknown",
+          latitude: 39.8283, // Center of US
+          longitude: -98.5795,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching county data:", error);
+      // Use default location on error
+      setSelectedCountyData({
+        fips,
+        name: "Unknown",
+        state: "Unknown",
+        latitude: 39.8283,
+        longitude: -98.5795,
+      });
+    }
+
+    setTimeout(() => {
+      setSelectedCounty(fips);
+      setIsTransitioning(false);
+    }, 150);
   };
 
   const handleCloseDashboard = () => {
     setSelectedCounty(null);
+    setSelectedCountyData(null);
   };
 
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <header className="bg-gradient-to-r from-green-700 to-blue-700 text-white p-6 shadow-lg">
-        <h1 className="text-3xl font-bold">AgriClime Sentinel</h1>
-        <p className="text-sm mt-1 opacity-90">
-          A Climate Risk Dashboard for U.S. Agricultural Security
-        </p>
+      <header className="bg-gradient-to-r from-green-700 to-blue-700 text-white p-4 md:p-6 shadow-lg overflow-visible">
+        <div className="container mx-auto">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+            <div className="text-center lg:text-left flex-shrink-0">
+              <h1 className="text-2xl md:text-3xl font-bold">
+                AgriClime Sentinel
+              </h1>
+              <p className="text-xs md:text-sm mt-1 opacity-90">
+                Advanced Atmospheric Science & Agricultural Climate Risk
+                Platform
+              </p>
+            </div>
+
+            {/* Dashboard Type Selector */}
+            <div className="flex flex-col gap-3 w-full max-w-2xl flex-shrink-0">
+              <p className="text-sm font-bold text-white text-center tracking-wide uppercase">
+                📊 Dashboard Mode
+              </p>
+              <div className="flex flex-col sm:flex-row bg-white bg-opacity-40 rounded-2xl p-2 shadow-xl backdrop-blur-md gap-2">
+                <button
+                  onClick={() => setDashboardType("atmospheric")}
+                  className={`flex-1 px-8 py-4 rounded-xl font-bold text-base transition-all duration-200 ${
+                    dashboardType === "atmospheric"
+                      ? "bg-blue-600 text-white shadow-xl transform scale-105"
+                      : "bg-white bg-opacity-50 text-blue-800 hover:bg-opacity-80 hover:shadow-lg"
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">🌪️</span>
+                    <span>Atmospheric</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setDashboardType("agricultural")}
+                  className={`flex-1 px-8 py-4 rounded-xl font-bold text-base transition-all duration-200 ${
+                    dashboardType === "agricultural"
+                      ? "bg-green-600 text-white shadow-xl transform scale-105"
+                      : "bg-white bg-opacity-50 text-green-800 hover:bg-opacity-80 hover:shadow-lg"
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">🌾</span>
+                    <span>Agricultural</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -60,15 +156,32 @@ export default function Home() {
             {/* Info Panel */}
             <div className="bg-white p-4 rounded-lg shadow">
               <h3 className="font-bold mb-2 text-gray-900">About This Tool</h3>
-              <p className="text-sm text-gray-800">
-                AgriClime Sentinel monitors climate-related risks to U.S.
-                agriculture by analyzing drought conditions, soil moisture,
-                precipitation patterns, and temperature anomalies.
-              </p>
-              <p className="text-sm text-gray-800 mt-2">
-                Click on any county to view detailed regional climate data and
-                historical trends.
-              </p>
+              {dashboardType === "agricultural" ? (
+                <>
+                  <p className="text-sm text-gray-800">
+                    AgriClime Sentinel monitors climate-related risks to U.S.
+                    agriculture by analyzing drought conditions, soil moisture,
+                    precipitation patterns, and temperature anomalies.
+                  </p>
+                  <p className="text-sm text-gray-800 mt-2">
+                    Click on any county to view detailed regional climate data
+                    and historical trends.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-gray-800">
+                    Advanced atmospheric science platform providing real-time
+                    severe weather analysis, air quality monitoring, and climate
+                    trend assessment.
+                  </p>
+                  <p className="text-sm text-gray-800 mt-2">
+                    Click on any county to access weather alerts, atmospheric
+                    instability indices, air quality data, and long-term climate
+                    trends.
+                  </p>
+                </>
+              )}
             </div>
 
             {/* Data Sources */}
@@ -76,11 +189,20 @@ export default function Home() {
               <h3 className="font-bold mb-2 text-sm text-gray-900">
                 Data Sources
               </h3>
-              <ul className="text-xs text-gray-800 space-y-1">
-                <li>• Open-Meteo Historical Weather API</li>
-                <li>• NOAA U.S. Drought Monitor</li>
-                <li>• USDA Agricultural Statistics</li>
-              </ul>
+              {dashboardType === "agricultural" ? (
+                <ul className="text-xs text-gray-800 space-y-1">
+                  <li>• Open-Meteo Historical Weather API</li>
+                  <li>• NOAA U.S. Drought Monitor</li>
+                  <li>• USDA Agricultural Statistics</li>
+                </ul>
+              ) : (
+                <ul className="text-xs text-gray-800 space-y-1">
+                  <li>• NOAA Weather Alerts & Forecasts</li>
+                  <li>• EPA AirNow Air Quality Data</li>
+                  <li>• NOAA Climate Data (1970-Present)</li>
+                  <li>• Atmospheric Sounding Models</li>
+                </ul>
+              )}
             </div>
           </div>
         </aside>
@@ -95,13 +217,26 @@ export default function Home() {
         </main>
       </div>
 
-      {/* Regional Dashboard Modal */}
-      {selectedCounty && (
+      {/* Dashboard Modals */}
+      {selectedCounty && dashboardType === "agricultural" && (
         <RegionalDashboard
           countyFips={selectedCounty}
           onClose={handleCloseDashboard}
         />
       )}
+
+      {selectedCounty &&
+        dashboardType === "atmospheric" &&
+        selectedCountyData && (
+          <AtmosphericScienceDashboard
+            fips={selectedCountyData.fips}
+            countyName={selectedCountyData.name}
+            state={selectedCountyData.state}
+            latitude={selectedCountyData.latitude}
+            longitude={selectedCountyData.longitude}
+            onClose={handleCloseDashboard}
+          />
+        )}
     </div>
   );
 }

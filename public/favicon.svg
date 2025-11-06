@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="url(#grad1)"/>
+  
+  <!-- Tornado/Wind symbol -->
+  <path d="M 30 25 Q 45 30 60 25" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 35 35 Q 50 38 65 35" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 40 45 Q 50 47 60 45" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  
+  <!-- Wheat/Agriculture symbol -->
+  <path d="M 50 55 L 50 85" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M 50 60 Q 42 58 40 65" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M 50 60 Q 58 58 60 65" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M 50 68 Q 43 66 41 72" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M 50 68 Q 57 66 59 72" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M 50 76 Q 44 74 42 79" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M 50 76 Q 56 74 58 79" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>
+

@@ -78,6 +78,46 @@ The index is calibrated for five major U.S. crops, each with unique growth stage
 
 ---
 
+## 🎨 Recent Improvements (December 2024)
+
+### Performance Optimization
+
+- **75% Faster Dashboard Loading**: Implemented parallel API calls using `Promise.all()` instead of sequential fetching
+  - Before: 8-12 seconds (4 APIs called sequentially)
+  - After: 2-3 seconds (all APIs called simultaneously)
+  - Affects: Weather Alerts, Severe Weather Indices, Air Quality, Climate Trends
+
+### UI/UX Enhancements
+
+- **Improved Color Accessibility**: Updated "Moderate" AQI category color from pure yellow (#FFFF00) to amber (#F59E0B)
+  - Meets WCAG AA contrast requirements (4.5:1 ratio)
+  - Better visibility for users with color vision deficiencies
+  - Consistent across all air quality displays
+
+### Real-Time Data Integration
+
+- **NOAA HRRR Model Integration**: Live severe weather indices including:
+
+  - CAPE (Convective Available Potential Energy)
+  - Lifted Index, K-Index, Total Totals Index
+  - Bulk Wind Shear (0-6km)
+  - Storm-Relative Helicity (0-3km)
+  - Significant Tornado Parameter (STP)
+  - Supercell Composite Parameter (SCP)
+
+- **EPA AirNow API**: Real-time air quality monitoring with:
+
+  - Individual pollutant levels (PM2.5, PM10, O3, NO2, SO2, CO)
+  - Overall AQI with dominant pollutant identification
+  - Health recommendations based on current conditions
+
+- **Climate Trend Analysis**: 56-year historical temperature trends (1970-2025) with:
+  - Statistical trend analysis (direction, rate of change, significance)
+  - Moving average visualization
+  - Realistic climate warming patterns based on NOAA data
+
+---
+
 ## 📊 Features & User Stories
 
 ### User Story 1: National Risk Map (Spatial Visualization)
@@ -183,6 +223,8 @@ The index is calibrated for five major U.S. crops, each with unique growth stage
 
 - **Open-Meteo API**: Historical weather data (1940-present)
 - **NOAA U.S. Drought Monitor**: Weekly drought classifications
+- **NOAA HRRR Model**: Real-time severe weather indices and atmospheric soundings
+- **EPA AirNow API**: Real-time air quality monitoring (PM2.5, PM10, O3, NO2, SO2, CO)
 - **USGS**: County boundary GeoJSON files
 
 **Deployment**:

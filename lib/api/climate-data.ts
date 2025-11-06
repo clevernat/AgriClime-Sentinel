@@ -1,6 +1,6 @@
-import axios from 'axios';
-import { supabase } from '@/lib/supabase';
-import { ClimateData, TemperatureAnomaly, CropYieldRiskIndex } from '@/types';
+import axios from "axios";
+import { supabase } from "@/lib/supabase";
+import { ClimateData, TemperatureAnomaly, CropYieldRiskIndex } from "@/types";
 
 /**
  * Fetch historical climate data from Open-Meteo API
@@ -17,22 +17,25 @@ export async function fetchOpenMeteoData(
     start_date: startDate,
     end_date: endDate,
     daily: [
-      'temperature_2m_max',
-      'temperature_2m_min',
-      'temperature_2m_mean',
-      'precipitation_sum',
-      'soil_moisture_0_to_10cm',
-    ].join(','),
-    timezone: 'America/Chicago',
+      "temperature_2m_max",
+      "temperature_2m_min",
+      "temperature_2m_mean",
+      "precipitation_sum",
+      "soil_moisture_0_to_10cm",
+    ].join(","),
+    timezone: "America/Chicago",
   };
 
   try {
-    const response = await axios.get('https://archive-api.open-meteo.com/v1/archive', {
-      params,
-    });
+    const response = await axios.get(
+      "https://archive-api.open-meteo.com/v1/archive",
+      {
+        params,
+      }
+    );
     return response.data;
   } catch (error) {
-    console.error('Error fetching Open-Meteo data:', error);
+    console.error("Error fetching Open-Meteo data:", error);
     throw error;
   }
 }
@@ -40,17 +43,19 @@ export async function fetchOpenMeteoData(
 /**
  * Get current climate data for a county
  */
-export async function getCurrentClimateData(countyFips: string): Promise<ClimateData | null> {
+export async function getCurrentClimateData(
+  countyFips: string
+): Promise<ClimateData | null> {
   const { data, error } = await supabase
-    .from('climate_data')
-    .select('*')
-    .eq('county_fips', countyFips)
-    .order('date', { ascending: false })
+    .from("climate_data")
+    .select("*")
+    .eq("county_fips", countyFips)
+    .order("date", { ascending: false })
     .limit(1)
     .single();
 
   if (error) {
-    console.error('Error fetching current climate data:', error);
+    console.error("Error fetching current climate data:", error);
     return null;
   }
 
@@ -66,15 +71,15 @@ export async function getClimateDataRange(
   endDate: string
 ): Promise<ClimateData[]> {
   const { data, error } = await supabase
-    .from('climate_data')
-    .select('*')
-    .eq('county_fips', countyFips)
-    .gte('date', startDate)
-    .lte('date', endDate)
-    .order('date', { ascending: true });
+    .from("climate_data")
+    .select("*")
+    .eq("county_fips", countyFips)
+    .gte("date", startDate)
+    .lte("date", endDate)
+    .order("date", { ascending: true });
 
   if (error) {
-    console.error('Error fetching climate data range:', error);
+    console.error("Error fetching climate data range:", error);
     return [];
   }
 
@@ -82,35 +87,69 @@ export async function getClimateDataRange(
 }
 
 /**
- * Get current drought status for all counties
+ * Get current drought status for all counties using pagination
  */
 export async function getCurrentDroughtStatus() {
-  const { data, error } = await supabase
-    .from('current_drought_status')
-    .select('*');
+  const allData: any[] = [];
+  const pageSize = 1000;
+  let page = 0;
+  let hasMore = true;
 
-  if (error) {
-    console.error('Error fetching drought status:', error);
-    return [];
+  while (hasMore) {
+    const { data, error } = await supabase
+      .from("current_drought_status")
+      .select("*")
+      .range(page * pageSize, (page + 1) * pageSize - 1);
+
+    if (error) {
+      console.error("Error fetching drought status:", error);
+      break;
+    }
+
+    if (data && data.length > 0) {
+      allData.push(...data);
+      hasMore = data.length === pageSize;
+      page++;
+    } else {
+      hasMore = false;
+    }
   }
 
-  return data || [];
+  console.log(`Fetched ${allData.length} drought status records`);
+  return allData;
 }
 
 /**
- * Get 30-day precipitation totals for all counties
+ * Get 30-day precipitation totals for all counties using pagination
  */
 export async function get30DayPrecipitation() {
-  const { data, error } = await supabase
-    .from('precipitation_30day')
-    .select('*');
+  const allData: any[] = [];
+  const pageSize = 1000;
+  let page = 0;
+  let hasMore = true;
 
-  if (error) {
-    console.error('Error fetching 30-day precipitation:', error);
-    return [];
+  while (hasMore) {
+    const { data, error } = await supabase
+      .from("precipitation_30day")
+      .select("*")
+      .range(page * pageSize, (page + 1) * pageSize - 1);
+
+    if (error) {
+      console.error("Error fetching 30-day precipitation:", error);
+      break;
+    }
+
+    if (data && data.length > 0) {
+      allData.push(...data);
+      hasMore = data.length === pageSize;
+      page++;
+    } else {
+      hasMore = false;
+    }
   }
 
-  return data || [];
+  console.log(`Fetched ${allData.length} precipitation records`);
+  return allData;
 }
 
 /**
@@ -120,13 +159,13 @@ export async function getTemperatureAnomaly(
   countyFips: string,
   date: string
 ): Promise<TemperatureAnomaly | null> {
-  const { data, error } = await supabase.rpc('calculate_temperature_anomaly', {
+  const { data, error } = await supabase.rpc("calculate_temperature_anomaly", {
     p_county_fips: countyFips,
     p_date: date,
   });
 
   if (error) {
-    console.error('Error calculating temperature anomaly:', error);
+    console.error("Error calculating temperature anomaly:", error);
     return null;
   }
 
@@ -134,45 +173,78 @@ export async function getTemperatureAnomaly(
 }
 
 /**
- * Get temperature anomalies for all counties
+ * Get temperature anomalies for all counties using pagination
  */
 export async function getAllTemperatureAnomalies(date: string) {
-  // Get current climate data
-  const { data: climateData, error: climateError } = await supabase
-    .from('climate_data')
-    .select('county_fips, temperature_avg')
-    .eq('date', date);
+  // Get current climate data - fetch all records with pagination
+  const allClimateData: any[] = [];
+  const pageSize = 1000;
+  let page = 0;
+  let hasMore = true;
 
-  if (climateError) {
-    console.error('Error fetching climate data:', climateError);
-    return [];
+  while (hasMore) {
+    const { data, error } = await supabase
+      .from("climate_data")
+      .select("county_fips, temperature_avg")
+      .eq("date", date)
+      .range(page * pageSize, (page + 1) * pageSize - 1);
+
+    if (error) {
+      console.error("Error fetching climate data:", error);
+      break;
+    }
+
+    if (data && data.length > 0) {
+      allClimateData.push(...data);
+      hasMore = data.length === pageSize;
+      page++;
+    } else {
+      hasMore = false;
+    }
   }
 
-  // Get baselines for current month
+  // Get baselines for current month - fetch all records with pagination
   const month = new Date(date).getMonth() + 1;
-  const { data: baselines, error: baselineError } = await supabase
-    .from('climate_baselines')
-    .select('county_fips, temperature_avg')
-    .eq('month', month);
+  const allBaselines: any[] = [];
+  page = 0;
+  hasMore = true;
 
-  if (baselineError) {
-    console.error('Error fetching baselines:', baselineError);
-    return [];
+  while (hasMore) {
+    const { data, error } = await supabase
+      .from("climate_baselines")
+      .select("county_fips, temperature_avg")
+      .eq("month", month)
+      .range(page * pageSize, (page + 1) * pageSize - 1);
+
+    if (error) {
+      console.error("Error fetching baselines:", error);
+      break;
+    }
+
+    if (data && data.length > 0) {
+      allBaselines.push(...data);
+      hasMore = data.length === pageSize;
+      page++;
+    } else {
+      hasMore = false;
+    }
   }
 
   // Calculate anomalies
   const baselineMap = new Map(
-    baselines?.map((b) => [b.county_fips, b.temperature_avg]) || []
+    allBaselines.map((b) => [b.county_fips, b.temperature_avg])
   );
 
-  return (
-    climateData?.map((cd) => ({
-      county_fips: cd.county_fips,
-      current_avg: cd.temperature_avg,
-      baseline_avg: baselineMap.get(cd.county_fips) || 0,
-      anomaly: cd.temperature_avg - (baselineMap.get(cd.county_fips) || 0),
-    })) || []
-  );
+  const result = allClimateData.map((cd) => ({
+    fips: cd.county_fips,
+    county_fips: cd.county_fips,
+    current_avg: cd.temperature_avg,
+    baseline_avg: baselineMap.get(cd.county_fips) || 0,
+    anomaly: cd.temperature_avg - (baselineMap.get(cd.county_fips) || 0),
+  }));
+
+  console.log(`Calculated ${result.length} temperature anomalies`);
+  return result;
 }
 
 /**
@@ -184,62 +256,81 @@ export async function getCropRiskIndex(
   date?: string
 ): Promise<CropYieldRiskIndex | null> {
   let query = supabase
-    .from('crop_risk_index')
-    .select('*')
-    .eq('county_fips', countyFips)
-    .eq('crop_type', cropType)
-    .order('date', { ascending: false })
+    .from("crop_risk_index")
+    .select("*")
+    .eq("county_fips", countyFips)
+    .eq("crop_type", cropType)
+    .order("date", { ascending: false })
     .limit(1);
 
   if (date) {
-    query = query.eq('date', date);
+    query = query.eq("date", date);
   }
 
   const { data, error } = await query.single();
 
   if (error) {
-    console.error('Error fetching crop risk index:', error);
+    console.error("Error fetching crop risk index:", error);
     return null;
   }
 
-  return data ? {
-    county_fips: data.county_fips,
-    crop_type: data.crop_type,
-    risk_score: data.risk_score,
-    factors: {
-      rainfall_deficit: data.rainfall_deficit_score,
-      soil_moisture_stress: data.soil_moisture_score,
-      heat_stress: data.heat_stress_score,
-      drought_severity: data.drought_severity_score,
-    },
-    growth_stage: data.growth_stage,
-  } : null;
+  return data
+    ? {
+        county_fips: data.county_fips,
+        crop_type: data.crop_type,
+        risk_score: data.risk_score,
+        factors: {
+          rainfall_deficit: data.rainfall_deficit_score,
+          soil_moisture_stress: data.soil_moisture_score,
+          heat_stress: data.heat_stress_score,
+          drought_severity: data.drought_severity_score,
+        },
+        growth_stage: data.growth_stage,
+      }
+    : null;
 }
 
 /**
- * Get crop risk indices for all counties for a specific crop
+ * Get crop risk indices for all counties for a specific crop using pagination
  */
 export async function getAllCropRiskIndices(cropType: string, date?: string) {
-  let query = supabase
-    .from('crop_risk_index')
-    .select('*')
-    .eq('crop_type', cropType);
+  const allData: any[] = [];
+  const pageSize = 1000;
+  let page = 0;
+  let hasMore = true;
 
-  if (date) {
-    query = query.eq('date', date);
-  } else {
-    // Get most recent for each county
-    query = query.order('date', { ascending: false });
+  while (hasMore) {
+    let query = supabase
+      .from("crop_risk_index")
+      .select("*")
+      .eq("crop_type", cropType)
+      .range(page * pageSize, (page + 1) * pageSize - 1);
+
+    if (date) {
+      query = query.eq("date", date);
+    } else {
+      // Get most recent for each county
+      query = query.order("date", { ascending: false });
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching crop risk indices:", error);
+      break;
+    }
+
+    if (data && data.length > 0) {
+      allData.push(...data);
+      hasMore = data.length === pageSize;
+      page++;
+    } else {
+      hasMore = false;
+    }
   }
 
-  const { data, error } = await query;
-
-  if (error) {
-    console.error('Error fetching crop risk indices:', error);
-    return [];
-  }
-
-  return data || [];
+  console.log(`Fetched ${allData.length} crop risk records for ${cropType}`);
+  return allData;
 }
 
 /**
@@ -247,19 +338,19 @@ export async function getAllCropRiskIndices(cropType: string, date?: string) {
  */
 export async function getDroughtEvents(countyFips: string, startYear?: number) {
   let query = supabase
-    .from('drought_events')
-    .select('*')
-    .eq('county_fips', countyFips)
-    .order('start_date', { ascending: true });
+    .from("drought_events")
+    .select("*")
+    .eq("county_fips", countyFips)
+    .order("start_date", { ascending: true });
 
   if (startYear) {
-    query = query.gte('start_date', `${startYear}-01-01`);
+    query = query.gte("start_date", `${startYear}-01-01`);
   }
 
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching drought events:', error);
+    console.error("Error fetching drought events:", error);
     return [];
   }
 
@@ -275,15 +366,15 @@ export async function getGrowingDegreeDays(
   endDate: string
 ) {
   const { data, error } = await supabase
-    .from('growing_degree_days')
-    .select('*')
-    .eq('county_fips', countyFips)
-    .gte('date', startDate)
-    .lte('date', endDate)
-    .order('date', { ascending: true });
+    .from("growing_degree_days")
+    .select("*")
+    .eq("county_fips", countyFips)
+    .gte("date", startDate)
+    .lte("date", endDate)
+    .order("date", { ascending: true });
 
   if (error) {
-    console.error('Error fetching GDD data:', error);
+    console.error("Error fetching GDD data:", error);
     return [];
   }
 
@@ -296,10 +387,9 @@ export async function getGrowingDegreeDays(
 export async function getYTDGrowingDegreeDays(countyFips: string) {
   const currentYear = new Date().getFullYear();
   const startDate = `${currentYear}-01-01`;
-  const endDate = new Date().toISOString().split('T')[0];
+  const endDate = new Date().toISOString().split("T")[0];
 
   const gddData = await getGrowingDegreeDays(countyFips, startDate, endDate);
-  
+
   return gddData.reduce((sum, record) => sum + (record.gdd_value || 0), 0);
 }
-

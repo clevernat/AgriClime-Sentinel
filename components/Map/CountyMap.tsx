@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapDataLayer } from "@/types";
@@ -22,40 +22,15 @@ export default function CountyMap({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!mapContainerRef.current) return;
+  console.log("CountyMap component mounted!");
 
-    // Initialize map only once
-    if (!mapRef.current) {
-      mapRef.current = L.map(mapContainerRef.current).setView(
-        [39.8283, -98.5795],
-        4
-      );
-
-      // Add base tile layer
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap contributors",
-        maxZoom: 18,
-      }).addTo(mapRef.current);
-    }
-
-    // Load and display county data
-    loadMapData();
-
-    return () => {
-      // Cleanup on unmount
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
-  }, [layer, cropType]);
-
-  const loadMapData = async () => {
+  const loadMapData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
+      console.log("Loading map data for layer:", layer, "crop:", cropType);
+
       // Fetch map data from API
       const params = new URLSearchParams({ layer });
       if (cropType && layer === "crop_risk") {
@@ -68,6 +43,7 @@ export default function CountyMap({
       }
 
       const result = await response.json();
+      console.log("Map data received:", result.data?.length, "records");
 
       // Fetch county geometries
       const countiesResponse = await fetch("/api/counties");
@@ -76,143 +52,184 @@ export default function CountyMap({
       }
 
       const counties = await countiesResponse.json();
+      console.log("Counties received:", counties.length);
 
-      // Create a map of county data by FIPS
-      const dataMap = new Map();
-      result.data.forEach((item: any) => {
-        const fips = item.fips || item.county_fips;
-        dataMap.set(fips, item);
+      if (!mapRef.current) return;
+
+      // Clear existing layers
+      mapRef.current.eachLayer((layer) => {
+        if (layer instanceof L.GeoJSON) {
+          mapRef.current?.removeLayer(layer);
+        }
       });
 
-      // Clear existing layers (except base layer)
-      if (mapRef.current) {
-        mapRef.current.eachLayer((layer) => {
-          if (layer instanceof L.GeoJSON) {
-            mapRef.current?.removeLayer(layer);
-          }
-        });
+      // Determine the value field and label based on layer type
+      let valueField: string;
+      let label: string;
+      const layerConfig = MAP_LAYERS[layer];
 
-        // Add county polygons with colors
-        const layerConfig = MAP_LAYERS[layer];
-
-        const geoJsonLayer = L.geoJSON(
-          {
-            type: "FeatureCollection",
-            features: counties.map((county: any) => ({
-              type: "Feature",
-              properties: {
-                fips: county.fips,
-                name: county.name,
-                state: county.state,
-              },
-              geometry: county.geometry,
-            })),
-          } as GeoJSON.FeatureCollection,
-          {
-            style: (feature) => {
-              const fips = feature?.properties?.fips;
-              const countyData = dataMap.get(fips);
-
-              let value = 0;
-              if (countyData) {
-                switch (layer) {
-                  case "drought":
-                    value = countyData.drought_index || 0;
-                    break;
-                  case "soil_moisture":
-                    value = countyData.soil_moisture || 0;
-                    break;
-                  case "precipitation_30day":
-                    value = countyData.total_precipitation || 0;
-                    break;
-                  case "temperature_anomaly":
-                    value = countyData.anomaly || 0;
-                    break;
-                  case "crop_risk":
-                    value = countyData.risk_score || 0;
-                    break;
-                }
-              }
-
-              const color = getColorForValue(value, layerConfig);
-
-              return {
-                fillColor: color,
-                weight: 1,
-                opacity: 1,
-                color: "#666",
-                fillOpacity: 0.7,
-              };
-            },
-            onEachFeature: (feature, leafletLayer) => {
-              const fips = feature.properties.fips;
-              const countyData = dataMap.get(fips);
-
-              // Add popup
-              let popupContent = `<strong>${feature.properties.name}, ${feature.properties.state}</strong><br/>`;
-
-              if (countyData) {
-                popupContent += `${layerConfig.name}: `;
-                switch (layer) {
-                  case "drought":
-                    popupContent += `Level ${countyData.drought_index || 0}`;
-                    break;
-                  case "soil_moisture":
-                    popupContent += `${countyData.soil_moisture || 0}%`;
-                    break;
-                  case "precipitation_30day":
-                    popupContent += `${countyData.total_precipitation || 0} mm`;
-                    break;
-                  case "temperature_anomaly":
-                    popupContent += `${(countyData.anomaly || 0).toFixed(1)}°C`;
-                    break;
-                  case "crop_risk":
-                    popupContent += `${(countyData.risk_score || 0).toFixed(
-                      1
-                    )}`;
-                    break;
-                }
-              } else {
-                popupContent += "No data available";
-              }
-
-              leafletLayer.bindPopup(popupContent);
-
-              // Add click handler
-              leafletLayer.on("click", () => {
-                if (onCountyClick) {
-                  onCountyClick(fips);
-                }
-              });
-
-              // Add hover effect
-              leafletLayer.on("mouseover", (e) => {
-                e.target.setStyle({
-                  weight: 3,
-                  color: "#000",
-                });
-              });
-
-              leafletLayer.on("mouseout", (e) => {
-                e.target.setStyle({
-                  weight: 1,
-                  color: "#666",
-                });
-              });
-            },
-          }
-        );
-
-        geoJsonLayer.addTo(mapRef.current);
+      switch (layer) {
+        case "drought":
+          valueField = "drought_index";
+          label = "Drought Level";
+          break;
+        case "soil_moisture":
+          valueField = "soil_moisture";
+          label = "Soil Moisture";
+          break;
+        case "precipitation_30day":
+          valueField = "total_precipitation";
+          label = "30-Day Precipitation";
+          break;
+        case "temperature_anomaly":
+          valueField = "anomaly";
+          label = "Temperature Anomaly";
+          break;
+        case "crop_risk":
+          valueField = "risk_score";
+          label = "Crop Risk Score";
+          break;
+        default:
+          valueField = "drought_index";
+          label = "Value";
       }
 
+      // Create a map of county data by FIPS code
+      const dataMap = new Map(
+        result.data.map((item: { county_fips?: string; fips?: string }) => [
+          item.county_fips || item.fips,
+          item,
+        ])
+      );
+
+      // Add GeoJSON layer with styling
+      L.geoJSON(
+        {
+          type: "FeatureCollection",
+          features: counties.map(
+            (county: {
+              fips: string;
+              geometry: L.GeoJSON;
+              [key: string]: unknown;
+            }) => ({
+              type: "Feature" as const,
+              properties: {
+                ...county,
+                data: dataMap.get(county.fips),
+              },
+              geometry: county.geometry,
+            })
+          ),
+        } as GeoJSON.FeatureCollection,
+        {
+          style: (feature) => {
+            const data = feature?.properties?.data;
+            const value = data?.[valueField];
+            const color =
+              value !== null && value !== undefined
+                ? getColorForValue(value, layerConfig)
+                : "#CCCCCC"; // Gray for missing data
+
+            return {
+              fillColor: color,
+              weight: 1,
+              opacity: 1,
+              color: "white",
+              fillOpacity: 0.7,
+              className: "county-polygon",
+            };
+          },
+          onEachFeature: (feature, layer) => {
+            const fips = feature.properties.fips;
+            const name = feature.properties.name;
+            const state = feature.properties.state;
+            const data = feature.properties.data;
+            const value = data?.[valueField];
+
+            // Add tooltip
+            layer.bindTooltip(
+              `<strong>${name}, ${state}</strong><br/>${label}: ${
+                value !== null && value !== undefined ? value.toFixed(2) : "N/A"
+              } ${layerConfig.unit}`
+            );
+
+            // Add hover effects
+            layer.on("mouseover", function (this: L.Path) {
+              this.setStyle({
+                weight: 3,
+                fillOpacity: 0.9,
+              });
+            });
+
+            layer.on("mouseout", function (this: L.Path) {
+              this.setStyle({
+                weight: 1,
+                fillOpacity: 0.7,
+              });
+            });
+
+            // Add click handler
+            layer.on("click", () => {
+              if (onCountyClick) {
+                onCountyClick(fips);
+              }
+            });
+          },
+        }
+      ).addTo(mapRef.current);
+
+      console.log("Map rendering complete!");
       setLoading(false);
     } catch (err) {
       console.error("Error loading map data:", err);
       setError(err instanceof Error ? err.message : "Failed to load map data");
       setLoading(false);
     }
-  };
+  }, [layer, cropType, onCountyClick]);
+
+  // Initialize map once
+  useEffect(() => {
+    try {
+      if (!mapContainerRef.current || mapRef.current) return;
+
+      console.log("Initializing Leaflet map...");
+      mapRef.current = L.map(mapContainerRef.current).setView(
+        [39.8283, -98.5795],
+        4
+      );
+
+      // Add base tile layer
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+        maxZoom: 18,
+      }).addTo(mapRef.current);
+
+      console.log("Map initialized successfully");
+    } catch (err) {
+      console.error("Error initializing map:", err);
+      setError("Failed to initialize map");
+    }
+
+    return () => {
+      // Cleanup on unmount
+      try {
+        if (mapRef.current) {
+          mapRef.current.remove();
+          mapRef.current = null;
+        }
+      } catch (err) {
+        console.error("Error cleaning up map:", err);
+      }
+    };
+  }, []);
+
+  // Load data when layer or crop changes
+  useEffect(() => {
+    if (mapRef.current) {
+      loadMapData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layer, cropType]);
 
   return (
     <div className="relative w-full h-full">
