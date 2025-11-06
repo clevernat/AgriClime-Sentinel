@@ -150,6 +150,7 @@ body {
   .leaflet-control-attribution {
     margin-bottom: 70px !important; /* Space for floating button */
     margin-right: 4px !important;
+    z-index: 1 !important; /* Below sidebar (z-999) and backdrop (z-998) */
   }
 
   /* Hide zoom controls when mobile sidebar is open */
@@ -165,4 +166,13 @@ body {
     pointer-events: auto;
     transition: opacity 0.3s ease-in-out;
   }
+}
+
+/* Ensure Leaflet controls are below sidebar on all screens */
+.leaflet-control-attribution {
+  z-index: 1 !important;
+}
+
+.leaflet-control-zoom {
+  z-index: 1 !important;
 }

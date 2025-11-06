@@ -166,10 +166,10 @@ export default function Home() {
           )}
         </button>
 
-        {/* Backdrop for mobile sidebar */}
+        {/* Backdrop for mobile sidebar - Blurred background */}
         {isMobileSidebarOpen && (
           <div
-            className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-[998]"
+            className="md:hidden fixed inset-0 bg-black bg-opacity-20 backdrop-blur-md z-[998]"
             onClick={() => setIsMobileSidebarOpen(false)}
           />
         )}
