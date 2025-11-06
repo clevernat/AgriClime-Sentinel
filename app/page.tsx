@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { MapDataLayer, CropType } from "@/types";
 import LayerSelector from "@/components/Map/LayerSelector";
 import MapLegend from "@/components/Map/MapLegend";
+import CountySearch from "@/components/Search/CountySearch";
 
 // Dynamically import map component to avoid SSR issues with Leaflet
 const CountyMap = dynamic(() => import("@/components/Map/CountyMap"), {
@@ -150,6 +151,14 @@ export default function Home() {
         {/* Sidebar */}
         <aside className="w-full md:w-72 lg:w-80 bg-gray-50 p-3 sm:p-4 overflow-y-auto border-b md:border-b-0 md:border-r border-gray-200 max-h-[40vh] md:max-h-none">
           <div className="space-y-3 sm:space-y-4">
+            {/* County Search */}
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow">
+              <h3 className="font-bold mb-2 text-sm sm:text-base text-gray-900">
+                Find County
+              </h3>
+              <CountySearch onCountySelect={handleCountyClick} />
+            </div>
+
             <LayerSelector
               selectedLayer={selectedLayer}
               selectedCrop={selectedCrop}
