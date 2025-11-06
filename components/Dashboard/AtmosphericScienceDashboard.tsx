@@ -266,51 +266,47 @@ export default function AtmosphericScienceDashboard({
         <div className="flex border-b border-gray-200 bg-gray-50 overflow-x-auto">
           <button
             onClick={() => setActiveTab("alerts")}
-            className={`flex-1 min-w-[80px] py-2 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-all ${
+            className={`flex-1 min-w-fit py-2 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-all whitespace-nowrap ${
               activeTab === "alerts"
                 ? "bg-white text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            <AlertTriangle className="inline mr-1 sm:mr-2" size={16} />
-            <span className="hidden xs:inline">Weather Alerts</span>
-            <span className="xs:hidden">Alerts</span>
+            <AlertTriangle className="inline mr-1 sm:mr-2" size={14} />
+            <span>Alerts</span>
           </button>
           <button
             onClick={() => setActiveTab("severe")}
-            className={`flex-1 min-w-[80px] py-2 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-all ${
+            className={`flex-1 min-w-fit py-2 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-all whitespace-nowrap ${
               activeTab === "severe"
                 ? "bg-white text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            <Wind className="inline mr-1 sm:mr-2" size={16} />
-            <span className="hidden xs:inline">Severe Weather</span>
-            <span className="xs:hidden">Severe</span>
+            <Wind className="inline mr-1 sm:mr-2" size={14} />
+            <span>Severe</span>
           </button>
           <button
             onClick={() => setActiveTab("airquality")}
-            className={`flex-1 min-w-[80px] py-2 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-all ${
+            className={`flex-1 min-w-fit py-2 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-all whitespace-nowrap ${
               activeTab === "airquality"
                 ? "bg-white text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            <Cloud className="inline mr-1 sm:mr-2" size={16} />
-            <span className="hidden xs:inline">Air Quality</span>
-            <span className="xs:hidden">Air</span>
+            <Cloud className="inline mr-1 sm:mr-2" size={14} />
+            <span>Air Quality</span>
           </button>
           <button
             onClick={() => setActiveTab("trends")}
-            className={`flex-1 min-w-[80px] py-2 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-all ${
+            className={`flex-1 min-w-fit py-2 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-all whitespace-nowrap ${
               activeTab === "trends"
                 ? "bg-white text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            <TrendingUp className="inline mr-1 sm:mr-2" size={16} />
-            <span className="hidden xs:inline">Climate Trends</span>
-            <span className="xs:hidden">Trends</span>
+            <TrendingUp className="inline mr-1 sm:mr-2" size={14} />
+            <span>Trends</span>
           </button>
         </div>
 

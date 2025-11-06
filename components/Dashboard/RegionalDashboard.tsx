@@ -124,19 +124,21 @@ export default function RegionalDashboard({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 overflow-y-auto animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[95vh] overflow-hidden flex flex-col animate-slideUp">
+    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[9999] p-2 sm:p-4 overflow-y-auto animate-fadeIn">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-7xl w-full max-h-[98vh] sm:max-h-[95vh] overflow-hidden flex flex-col animate-slideUp my-2 sm:my-0">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 flex justify-between items-center">
-          <div>
-            <h2 className="text-3xl font-bold">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-3 sm:p-4 md:p-6 flex justify-between items-start sm:items-center">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg sm:text-2xl md:text-3xl font-bold truncate">
               {data.county.name}, {data.county.state}
             </h2>
-            <p className="text-blue-100 mt-1">Regional Climate Dashboard</p>
+            <p className="text-blue-100 mt-0.5 sm:mt-1 text-xs sm:text-sm md:text-base">
+              Regional Climate Dashboard
+            </p>
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:bg-white hover:bg-opacity-20 rounded-full w-10 h-10 flex items-center justify-center text-3xl font-bold transition-all"
+            className="text-white hover:bg-white hover:bg-opacity-20 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-2xl sm:text-3xl font-bold transition-all flex-shrink-0 ml-2"
             aria-label="Close"
           >
             ×
@@ -144,16 +146,16 @@ export default function RegionalDashboard({
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 bg-gray-50">
           {/* Current Conditions */}
           <div
-            className="bg-white rounded-xl shadow-md p-6 animate-slideUp"
+            className="bg-white rounded-lg sm:rounded-xl shadow-md p-4 sm:p-6 animate-slideUp"
             style={{ animationDelay: "0.1s", animationFillMode: "both" }}
           >
-            <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center">
-              <span className="bg-blue-100 text-blue-600 rounded-lg p-2 mr-3">
+            <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-gray-800 flex items-center">
+              <span className="bg-blue-100 text-blue-600 rounded-lg p-1.5 sm:p-2 mr-2 sm:mr-3">
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -168,36 +170,36 @@ export default function RegionalDashboard({
               </span>
               Current Conditions
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-5 rounded-xl border border-orange-200">
-                <div className="text-sm font-medium text-orange-700 mb-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 sm:p-5 rounded-lg sm:rounded-xl border border-orange-200">
+                <div className="text-xs sm:text-sm font-medium text-orange-700 mb-1">
                   Temperature
                 </div>
-                <div className="text-3xl font-bold text-orange-900">
+                <div className="text-2xl sm:text-3xl font-bold text-orange-900">
                   {data.current_climate?.temperature_avg?.toFixed(1) ?? "N/A"}°C
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-xl border border-blue-200">
-                <div className="text-sm font-medium text-blue-700 mb-1">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 sm:p-5 rounded-lg sm:rounded-xl border border-blue-200">
+                <div className="text-xs sm:text-sm font-medium text-blue-700 mb-1">
                   Soil Moisture
                 </div>
-                <div className="text-3xl font-bold text-blue-900">
+                <div className="text-2xl sm:text-3xl font-bold text-blue-900">
                   {data.current_climate?.soil_moisture?.toFixed(0) ?? "N/A"}%
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl border border-green-200">
-                <div className="text-sm font-medium text-green-700 mb-1">
+              <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 sm:p-5 rounded-lg sm:rounded-xl border border-green-200">
+                <div className="text-xs sm:text-sm font-medium text-green-700 mb-1">
                   Growing Degree Days (YTD)
                 </div>
-                <div className="text-3xl font-bold text-green-900">
+                <div className="text-2xl sm:text-3xl font-bold text-green-900">
                   {data.growing_degree_days?.toFixed(0) ?? "N/A"}
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-red-50 to-red-100 p-5 rounded-xl border border-red-200">
-                <div className="text-sm font-medium text-red-700 mb-1">
+              <div className="bg-gradient-to-br from-red-50 to-red-100 p-4 sm:p-5 rounded-lg sm:rounded-xl border border-red-200">
+                <div className="text-xs sm:text-sm font-medium text-red-700 mb-1">
                   Extreme Heat Days (YTD)
                 </div>
-                <div className="text-3xl font-bold text-red-900">
+                <div className="text-2xl sm:text-3xl font-bold text-red-900">
                   {data.extreme_heat_days_ytd ?? "N/A"}
                 </div>
               </div>

@@ -123,8 +123,7 @@ export default function Home() {
                 >
                   <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                     <span className="text-xl sm:text-2xl">🌪️</span>
-                    <span className="hidden xs:inline">Atmospheric</span>
-                    <span className="xs:hidden">Atmos</span>
+                    <span>Atmospheric</span>
                   </div>
                 </button>
                 <button
@@ -137,8 +136,7 @@ export default function Home() {
                 >
                   <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                     <span className="text-xl sm:text-2xl">🌾</span>
-                    <span className="hidden xs:inline">Agricultural</span>
-                    <span className="xs:hidden">Agri</span>
+                    <span>Agricultural</span>
                   </div>
                 </button>
               </div>
