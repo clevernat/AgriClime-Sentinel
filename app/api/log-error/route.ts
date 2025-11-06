@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 /**
  * POST /api/log-error
- * 
+ *
  * Endpoint for logging client-side errors to the server.
  * In production, this should forward errors to a monitoring service
  * like Sentry, LogRocket, Rollbar, or Datadog.
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     // TODO: In production, send to error monitoring service
     // Example integrations:
-    
+
     // Sentry:
     // import * as Sentry from "@sentry/nextjs";
     // Sentry.captureException(new Error(errorData.message), {
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Error logged successfully",
     });
-  } catch (error) {
+  } catch {
     // Don't throw errors in error logging endpoint
     // Just return success to prevent infinite loops
     return NextResponse.json({
@@ -71,4 +71,3 @@ export async function POST(request: NextRequest) {
     });
   }
 }
-

@@ -24,6 +24,25 @@ import {
 import type { WeatherAlert } from "@/lib/api/noaa-weather";
 import type { SevereWeatherIndices } from "@/lib/api/severe-weather-indices";
 
+interface AirQualityObservation {
+  dateObserved: string;
+  hourObserved: number;
+  localTimeZone: string;
+  reportingArea: string;
+  stateCode: string;
+  latitude: number;
+  longitude: number;
+  parameterName: string;
+  aqi: number;
+  category: {
+    number: number;
+    name: string;
+    color?: string;
+    healthEffects?: string;
+    cautionaryStatement?: string;
+  };
+}
+
 interface AirQualityData {
   success: boolean;
   location: { latitude: number; longitude: number };
@@ -37,7 +56,7 @@ interface AirQualityData {
     dominantPollutant: string;
   };
   recommendations: string[];
-  observations: unknown[];
+  observations: AirQualityObservation[];
 }
 
 interface ClimateTrendsData {
@@ -780,7 +799,7 @@ export default function AtmosphericScienceDashboard({
                           </h4>
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {airQuality.observations.map(
-                              (obs: any, index: number) => (
+                              (obs, index: number) => (
                                 <div
                                   key={index}
                                   className="border-2 rounded-xl p-5 text-center hover:shadow-lg transition-shadow"
@@ -866,7 +885,7 @@ export default function AtmosphericScienceDashboard({
                               />
                               <Bar dataKey="aqi" radius={[8, 8, 0, 0]}>
                                 {airQuality.observations.map(
-                                  (entry: any, index: number) => (
+                                  (entry, index: number) => (
                                     <Bar
                                       key={`bar-${index}`}
                                       fill={entry.category?.color || "#3B82F6"}

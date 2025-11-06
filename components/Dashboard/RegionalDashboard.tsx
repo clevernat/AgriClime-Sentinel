@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { RegionalDashboardData } from "@/types";
 import {
   LineChart,
@@ -32,11 +32,7 @@ export default function RegionalDashboard({
     countyState?: string;
   } | null>(null);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, [countyFips]);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     setLoading(true);
     setError(null);
     setErrorDetails(null);
@@ -69,7 +65,11 @@ export default function RegionalDashboard({
     } finally {
       setLoading(false);
     }
-  };
+  }, [countyFips]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   if (loading) {
     return (
