@@ -92,6 +92,7 @@ AgriClime Sentinel uses a sophisticated **two-tier data architecture** that bala
 | 🌪️ **Severe Weather** | NOAA HRRR Model        | ⚠️ Real (with fallback) | CAPE, SRH, wind shear, tornado parameters |
 | 💨 **Air Quality**    | EPA AirNow API         | ✅ Real                 | AQI for O3, PM2.5, PM10, NO2, SO2, CO     |
 | 📈 **Climate Trends** | Open-Meteo Archive API | ✅ Real                 | 55 years of temperature data (1970-2025)  |
+| 📄 **Export**         | Client-side            | ✅ Implemented          | PDF & CSV export with auto-chart capture  |
 
 ### **Why This Architecture?**
 
@@ -250,6 +251,19 @@ The index is calibrated for five major U.S. crops, each with unique growth stage
   - Fixed `significance` → `isSignificant` field mapping
   - Added API-generated interpretation text
   - Eliminated "Cannot read properties of undefined" errors
+
+### Export Functionality
+
+- **Enhanced PDF Export**: Automatic chart rendering for complete reports
+  - **Problem Solved**: Previously, charts only appeared in PDF if you manually visited each tab first
+  - **New Behavior**: All charts automatically included regardless of tab navigation
+  - **How It Works**:
+    - Temporarily renders all hidden tabs in the background
+    - Captures all visualizations (Pollutant Comparison, Atmospheric Indices, Temperature Trends)
+    - Restores original tab state after export
+    - Seamless UX - no visible tab switching
+  - **User Benefit**: One-click export generates complete PDF reports with all charts
+  - **Technical Implementation**: `forceRenderAllCharts()` function with automatic cleanup
 
 ### Bug Fixes
 
