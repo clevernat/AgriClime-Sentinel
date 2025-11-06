@@ -94,49 +94,51 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <header className="bg-gradient-to-r from-green-700 to-blue-700 text-white p-4 md:p-6 shadow-lg overflow-visible">
+      <header className="bg-gradient-to-r from-green-700 to-blue-700 text-white p-3 sm:p-4 md:p-6 shadow-lg overflow-visible">
         <div className="container mx-auto">
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-3 sm:gap-4 lg:gap-6">
             <div className="text-center lg:text-left flex-shrink-0">
-              <h1 className="text-2xl md:text-3xl font-bold">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
                 AgriClime Sentinel
               </h1>
-              <p className="text-xs md:text-sm mt-1 opacity-90">
+              <p className="text-xs sm:text-sm mt-1 opacity-90">
                 Advanced Atmospheric Science & Agricultural Climate Risk
                 Platform
               </p>
             </div>
 
             {/* Dashboard Type Selector */}
-            <div className="flex flex-col gap-3 w-full max-w-2xl flex-shrink-0">
-              <p className="text-sm font-bold text-white text-center tracking-wide uppercase">
+            <div className="flex flex-col gap-2 sm:gap-3 w-full lg:max-w-2xl flex-shrink-0">
+              <p className="text-xs sm:text-sm font-bold text-white text-center tracking-wide uppercase">
                 📊 Dashboard Mode
               </p>
-              <div className="flex flex-col sm:flex-row bg-white bg-opacity-40 rounded-2xl p-2 shadow-xl backdrop-blur-md gap-2">
+              <div className="flex flex-col sm:flex-row bg-white bg-opacity-40 rounded-xl sm:rounded-2xl p-1.5 sm:p-2 shadow-xl backdrop-blur-md gap-1.5 sm:gap-2">
                 <button
                   onClick={() => setDashboardType("atmospheric")}
-                  className={`flex-1 px-8 py-4 rounded-xl font-bold text-base transition-all duration-200 ${
+                  className={`flex-1 px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all duration-200 ${
                     dashboardType === "atmospheric"
                       ? "bg-blue-600 text-white shadow-xl transform scale-105"
                       : "bg-white bg-opacity-50 text-blue-800 hover:bg-opacity-80 hover:shadow-lg"
                   }`}
                 >
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🌪️</span>
-                    <span>Atmospheric</span>
+                  <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+                    <span className="text-xl sm:text-2xl">🌪️</span>
+                    <span className="hidden xs:inline">Atmospheric</span>
+                    <span className="xs:hidden">Atmos</span>
                   </div>
                 </button>
                 <button
                   onClick={() => setDashboardType("agricultural")}
-                  className={`flex-1 px-8 py-4 rounded-xl font-bold text-base transition-all duration-200 ${
+                  className={`flex-1 px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all duration-200 ${
                     dashboardType === "agricultural"
                       ? "bg-green-600 text-white shadow-xl transform scale-105"
                       : "bg-white bg-opacity-50 text-green-800 hover:bg-opacity-80 hover:shadow-lg"
                   }`}
                 >
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🌾</span>
-                    <span>Agricultural</span>
+                  <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+                    <span className="text-xl sm:text-2xl">🌾</span>
+                    <span className="hidden xs:inline">Agricultural</span>
+                    <span className="xs:hidden">Agri</span>
                   </div>
                 </button>
               </div>
@@ -146,10 +148,10 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-80 bg-gray-50 p-4 overflow-y-auto border-r border-gray-200">
-          <div className="space-y-4">
+        <aside className="w-full md:w-72 lg:w-80 bg-gray-50 p-3 sm:p-4 overflow-y-auto border-b md:border-b-0 md:border-r border-gray-200 max-h-[40vh] md:max-h-none">
+          <div className="space-y-3 sm:space-y-4">
             <LayerSelector
               selectedLayer={selectedLayer}
               selectedCrop={selectedCrop}
@@ -158,29 +160,31 @@ export default function Home() {
             />
             <MapLegend layer={selectedLayer} />
 
-            {/* Info Panel */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h3 className="font-bold mb-2 text-gray-900">About This Tool</h3>
+            {/* Info Panel - Hidden on mobile, visible on tablet+ */}
+            <div className="hidden md:block bg-white p-3 sm:p-4 rounded-lg shadow">
+              <h3 className="font-bold mb-2 text-sm sm:text-base text-gray-900">
+                About This Tool
+              </h3>
               {dashboardType === "agricultural" ? (
                 <>
-                  <p className="text-sm text-gray-800">
+                  <p className="text-xs sm:text-sm text-gray-800">
                     AgriClime Sentinel monitors climate-related risks to U.S.
                     agriculture by analyzing drought conditions, soil moisture,
                     precipitation patterns, and temperature anomalies.
                   </p>
-                  <p className="text-sm text-gray-800 mt-2">
+                  <p className="text-xs sm:text-sm text-gray-800 mt-2">
                     Click on any county to view detailed regional climate data
                     and historical trends.
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="text-sm text-gray-800">
+                  <p className="text-xs sm:text-sm text-gray-800">
                     Advanced atmospheric science platform providing real-time
                     severe weather analysis, air quality monitoring, and climate
                     trend assessment.
                   </p>
-                  <p className="text-sm text-gray-800 mt-2">
+                  <p className="text-xs sm:text-sm text-gray-800 mt-2">
                     Click on any county to access weather alerts, atmospheric
                     instability indices, air quality data, and long-term climate
                     trends.
@@ -189,9 +193,9 @@ export default function Home() {
               )}
             </div>
 
-            {/* Data Sources */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h3 className="font-bold mb-2 text-sm text-gray-900">
+            {/* Data Sources - Hidden on mobile, visible on tablet+ */}
+            <div className="hidden md:block bg-white p-3 sm:p-4 rounded-lg shadow">
+              <h3 className="font-bold mb-2 text-xs sm:text-sm text-gray-900">
                 Data Sources
               </h3>
               {dashboardType === "agricultural" ? (
@@ -213,7 +217,7 @@ export default function Home() {
         </aside>
 
         {/* Map Container */}
-        <main className="flex-1 relative">
+        <main className="flex-1 relative min-h-[60vh] md:min-h-0">
           <CountyMap
             layer={selectedLayer}
             cropType={selectedCrop}

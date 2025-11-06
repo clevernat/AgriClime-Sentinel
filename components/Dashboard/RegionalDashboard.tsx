@@ -73,10 +73,10 @@ export default function RegionalDashboard({
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] animate-fadeIn">
-        <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center space-y-4 animate-scaleIn">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <div className="text-gray-800 text-xl font-semibold">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] animate-fadeIn p-4">
+        <div className="bg-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-2xl flex flex-col items-center space-y-3 sm:space-y-4 animate-scaleIn">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-gray-800 text-base sm:text-xl font-semibold text-center">
             Loading dashboard...
           </div>
         </div>
@@ -87,16 +87,16 @@ export default function RegionalDashboard({
   if (error || !data) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4 animate-fadeIn">
-        <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full animate-slideUp">
-          <h2 className="text-xl font-bold mb-2 text-gray-900">
+        <div className="bg-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-2xl max-w-md w-full animate-slideUp">
+          <h2 className="text-lg sm:text-xl font-bold mb-2 text-gray-900">
             {errorDetails?.countyName && errorDetails?.countyState
               ? `${errorDetails.countyName}, ${errorDetails.countyState}`
               : "Regional Climate Dashboard"}
           </h2>
-          <h3 className="text-lg font-semibold mb-4 text-red-600">
+          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-red-600">
             No Data Available
           </h3>
-          <p className="mb-4 text-gray-700">
+          <p className="mb-3 sm:mb-4 text-sm sm:text-base text-gray-700">
             {error ||
               "Climate data for this county is not yet available in the database."}
           </p>

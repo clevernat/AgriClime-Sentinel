@@ -226,10 +226,10 @@ export default function AtmosphericScienceDashboard({
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] animate-fadeIn">
-        <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center space-y-4 animate-scaleIn">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <div className="text-gray-800 text-xl font-semibold">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] animate-fadeIn p-4">
+        <div className="bg-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-2xl flex flex-col items-center space-y-3 sm:space-y-4 animate-scaleIn">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-gray-800 text-base sm:text-xl font-semibold text-center">
             Loading atmospheric data...
           </div>
         </div>
@@ -238,93 +238,97 @@ export default function AtmosphericScienceDashboard({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4 animate-fadeIn overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl max-h-[95vh] overflow-hidden animate-scaleIn flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-2 sm:p-4 animate-fadeIn overflow-y-auto">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-7xl max-h-[98vh] sm:max-h-[95vh] overflow-hidden animate-scaleIn flex flex-col my-2 sm:my-0">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 flex justify-between items-center">
-          <div>
-            <h2 className="text-3xl font-bold">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-3 sm:p-4 md:p-6 flex justify-between items-start sm:items-center">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg sm:text-2xl md:text-3xl font-bold truncate">
               Atmospheric Science Dashboard
             </h2>
-            <p className="text-blue-100 mt-1">
+            <p className="text-blue-100 mt-0.5 sm:mt-1 text-xs sm:text-sm md:text-base truncate">
               {countyName} County, {state}
             </p>
-            <p className="text-blue-200 text-sm mt-1">
-              Coordinates: {latitude.toFixed(4)}°N,{" "}
-              {Math.abs(longitude).toFixed(4)}°W
+            <p className="text-blue-200 text-xs sm:text-sm mt-0.5 sm:mt-1 truncate">
+              {latitude.toFixed(4)}°N, {Math.abs(longitude).toFixed(4)}°W
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-all duration-200"
+            className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1.5 sm:p-2 transition-all duration-200 flex-shrink-0 ml-2"
           >
-            <X size={28} />
+            <X size={20} className="sm:hidden" />
+            <X size={28} className="hidden sm:block" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 bg-gray-50">
+        <div className="flex border-b border-gray-200 bg-gray-50 overflow-x-auto">
           <button
             onClick={() => setActiveTab("alerts")}
-            className={`flex-1 py-4 px-6 font-semibold transition-all ${
+            className={`flex-1 min-w-[80px] py-2 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-all ${
               activeTab === "alerts"
                 ? "bg-white text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            <AlertTriangle className="inline mr-2" size={20} />
-            Weather Alerts
+            <AlertTriangle className="inline mr-1 sm:mr-2" size={16} />
+            <span className="hidden xs:inline">Weather Alerts</span>
+            <span className="xs:hidden">Alerts</span>
           </button>
           <button
             onClick={() => setActiveTab("severe")}
-            className={`flex-1 py-4 px-6 font-semibold transition-all ${
+            className={`flex-1 min-w-[80px] py-2 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-all ${
               activeTab === "severe"
                 ? "bg-white text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            <Wind className="inline mr-2" size={20} />
-            Severe Weather
+            <Wind className="inline mr-1 sm:mr-2" size={16} />
+            <span className="hidden xs:inline">Severe Weather</span>
+            <span className="xs:hidden">Severe</span>
           </button>
           <button
             onClick={() => setActiveTab("airquality")}
-            className={`flex-1 py-4 px-6 font-semibold transition-all ${
+            className={`flex-1 min-w-[80px] py-2 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-all ${
               activeTab === "airquality"
                 ? "bg-white text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            <Cloud className="inline mr-2" size={20} />
-            Air Quality
+            <Cloud className="inline mr-1 sm:mr-2" size={16} />
+            <span className="hidden xs:inline">Air Quality</span>
+            <span className="xs:hidden">Air</span>
           </button>
           <button
             onClick={() => setActiveTab("trends")}
-            className={`flex-1 py-4 px-6 font-semibold transition-all ${
+            className={`flex-1 min-w-[80px] py-2 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-all ${
               activeTab === "trends"
                 ? "bg-white text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            <TrendingUp className="inline mr-2" size={20} />
-            Climate Trends
+            <TrendingUp className="inline mr-1 sm:mr-2" size={16} />
+            <span className="hidden xs:inline">Climate Trends</span>
+            <span className="xs:hidden">Trends</span>
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
           {/* Weather Alerts Tab */}
           {activeTab === "alerts" && (
-            <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
                 Active Weather Alerts
               </h3>
 
               {weatherAlerts.length === 0 ? (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-                  <p className="text-green-800 font-semibold text-lg">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6 text-center">
+                  <p className="text-green-800 font-semibold text-base sm:text-lg">
                     ✓ No Active Weather Alerts
                   </p>
-                  <p className="text-green-600 mt-2">
+                  <p className="text-green-600 mt-2 text-sm sm:text-base">
                     There are currently no weather warnings or watches for this
                     area.
                   </p>
@@ -333,18 +337,18 @@ export default function AtmosphericScienceDashboard({
                 weatherAlerts.map((alert, index) => (
                   <div
                     key={alert.id || index}
-                    className="border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+                    className="border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center space-x-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2 sm:gap-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                         <span
                           className={`${getSeverityColor(
                             alert.severity
-                          )} text-white px-3 py-1 rounded-full text-sm font-semibold`}
+                          )} text-white px-3 py-1 rounded-full text-xs sm:text-sm font-semibold w-fit`}
                         >
                           {alert.severity}
                         </span>
-                        <h4 className="text-xl font-bold text-gray-800">
+                        <h4 className="text-lg sm:text-xl font-bold text-gray-800">
                           {alert.event}
                         </h4>
                       </div>

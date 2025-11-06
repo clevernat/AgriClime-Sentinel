@@ -10,6 +10,14 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Custom breakpoints for responsive design */
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -77,4 +85,47 @@ body {
 
 .county-polygon:hover {
   filter: brightness(1.1);
+}
+
+/* Mobile-specific styles */
+@media (max-width: 480px) {
+  /* Reduce font sizes on very small screens */
+  html {
+    font-size: 14px;
+  }
+
+  /* Ensure touch targets are at least 44x44px */
+  button,
+  a,
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Tablet-specific styles */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Optimize for tablet viewing */
+  .sidebar-content {
+    max-width: 280px;
+  }
+}
+
+/* Custom xs breakpoint utilities */
+@media (min-width: 480px) {
+  .xs\:inline {
+    display: inline;
+  }
+
+  .xs\:hidden {
+    display: none;
+  }
+
+  .xs\:block {
+    display: block;
+  }
+
+  .xs\:flex {
+    display: flex;
+  }
 }
