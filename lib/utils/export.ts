@@ -513,36 +513,34 @@ export async function exportToPDF(
 
       addSectionHeader("4.2 Extreme Heat Days by Year", [168, 85, 247], 2);
 
-      // Find the extreme heat chart (it's the second chart in the dashboard)
-      const dashboardContent = document.getElementById("regional-dashboard-content");
-      if (dashboardContent) {
-        const allCharts = dashboardContent.querySelectorAll(".recharts-wrapper");
-        if (allCharts.length > 1) {
-          try {
-            console.log("Capturing Extreme Heat Days chart...");
-            const heatChartParent = allCharts[1].parentElement;
-            if (heatChartParent) {
-              const canvas = await html2canvas(heatChartParent, {
-                scale: 2,
-                backgroundColor: "#f9fafb",
-                logging: false,
-              });
+      // Capture the extreme heat chart using its ID
+      const heatChartElement = document.getElementById("extreme-heat-chart");
+      if (heatChartElement) {
+        try {
+          console.log("Capturing Extreme Heat Days chart...");
+          const canvas = await html2canvas(heatChartElement, {
+            scale: 2,
+            backgroundColor: "#f9fafb",
+            logging: false,
+          });
 
-              const imgData = canvas.toDataURL("image/png");
-              const imgWidth = contentWidth;
-              const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          const imgData = canvas.toDataURL("image/png");
+          const imgWidth = contentWidth;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-              pdf.addImage(imgData, "PNG", leftMargin, yPos, imgWidth, imgHeight);
-              yPos += imgHeight + 8;
+          pdf.addImage(imgData, "PNG", leftMargin, yPos, imgWidth, imgHeight);
+          yPos += imgHeight + 8;
 
-              console.log("✅ Extreme Heat Days chart captured");
-            }
-          } catch (error) {
-            console.error("Error capturing heat chart:", error);
-            addText("⚠ Chart visualization unavailable", 10, false, [150, 150, 150]);
-            yPos += 5;
-          }
+          console.log("✅ Extreme Heat Days chart captured");
+        } catch (error) {
+          console.error("Error capturing heat chart:", error);
+          addText("⚠ Chart visualization unavailable", 10, false, [150, 150, 150]);
+          yPos += 5;
         }
+      } else {
+        console.warn("Extreme heat chart element not found");
+        addText("⚠ Extreme heat chart not found", 10, false, [150, 150, 150]);
+        yPos += 5;
       }
 
       addText(

@@ -427,7 +427,7 @@ export default function RegionalDashboard({
                 </span>
                 Extreme Heat Days by Year
               </h3>
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div id="extreme-heat-chart" className="bg-gray-50 rounded-lg p-4">
                 <ResponsiveContainer width="100%" height={350}>
                   <BarChart data={data.historical_trends}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
