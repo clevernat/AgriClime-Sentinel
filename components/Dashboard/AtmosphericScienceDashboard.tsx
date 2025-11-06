@@ -836,16 +836,6 @@ export default function AtmosphericScienceDashboard({
                       </>
                     )}
                 </>
-              ) : (
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-12 text-center">
-                  <Cloud size={80} className="mx-auto text-gray-400 mb-4" />
-                  <p className="text-xl font-semibold text-gray-600 mb-2">
-                    No air quality data available
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Air quality monitoring may not be available in all areas
-                  </p>
-                </div>
               )}
             </div>
           )}
