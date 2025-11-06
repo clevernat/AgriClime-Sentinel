@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import ConsoleErrorSuppressor from "@/components/ConsoleErrorSuppressor";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,27 +39,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <ConsoleErrorSuppressor />
         <ErrorBoundary>{children}</ErrorBoundary>
-        {/* Suppress known Recharts + React 19 type warnings */}
-        <Script id="suppress-recharts-warnings" strategy="beforeInteractive">
-          {`
-            if (typeof window !== 'undefined') {
-              const originalError = console.error;
-              console.error = (...args) => {
-                // Suppress known Recharts type warnings that don't affect functionality
-                if (
-                  typeof args[0] === 'string' &&
-                  (args[0].includes('popupClassName') ||
-                   args[0].includes('TooltipProps') ||
-                   args[0].includes('not assignable to type'))
-                ) {
-                  return;
-                }
-                originalError.apply(console, args);
-              };
-            }
-          `}
-        </Script>
       </body>
     </html>
   );
