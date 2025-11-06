@@ -162,10 +162,11 @@ export default function CountySearch({ onCountySelect }: CountySearchProps) {
               }
             });
 
-            if (closestCounty) {
+            if (closestCounty !== null) {
+              const county: County = closestCounty;
               const result: SearchResult = {
-                ...closestCounty,
-                displayName: `${closestCounty.name}, ${closestCounty.state}`,
+                ...county,
+                displayName: `${county.name}, ${county.state}`,
               };
               handleSelectCounty(result);
             }

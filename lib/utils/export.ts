@@ -500,6 +500,67 @@ async function captureChartAsImage(chartId: string): Promise<string | null> {
 }
 
 /**
+ * Force render all charts by temporarily making all tab content visible
+ */
+async function forceRenderAllCharts(): Promise<() => void> {
+  console.log("[Chart Rendering] Force rendering all charts...");
+
+  const originalStates: Array<{ element: HTMLElement; display: string }> = [];
+
+  // Find the atmospheric dashboard content container
+  const dashboardContent = document.getElementById('atmospheric-dashboard-content');
+
+  if (dashboardContent) {
+    // Find all direct child divs (these are the tab content containers)
+    const tabContainers = dashboardContent.querySelectorAll(':scope > div');
+
+    console.log(`[Chart Rendering] Found ${tabContainers.length} tab containers`);
+
+    tabContainers.forEach((container, index) => {
+      const element = container as HTMLElement;
+      const originalDisplay = element.style.display;
+
+      // Store original state
+      originalStates.push({ element, display: originalDisplay });
+
+      // Force visible if hidden
+      if (originalDisplay === 'none') {
+        element.style.display = 'block';
+        console.log(`[Chart Rendering] Made tab ${index + 1} visible (was hidden)`);
+      }
+    });
+  } else {
+    console.warn("[Chart Rendering] Dashboard content container not found, trying fallback...");
+
+    // Fallback: Find all elements with display:none that contain charts
+    const hiddenContainers = document.querySelectorAll('div[style*="display: none"]');
+    hiddenContainers.forEach((container) => {
+      const element = container as HTMLElement;
+      // Check if it contains chart elements
+      if (element.querySelector('svg') || element.id.includes('chart')) {
+        const originalDisplay = element.style.display;
+        originalStates.push({ element, display: originalDisplay });
+        element.style.display = 'block';
+        console.log(`[Chart Rendering] Made visible: ${element.id || 'unnamed container'}`);
+      }
+    });
+  }
+
+  // Wait for charts to render (Recharts needs time to render SVGs)
+  console.log("[Chart Rendering] Waiting for charts to fully render...");
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
+  // Return cleanup function
+  return () => {
+    console.log("[Chart Rendering] Restoring original visibility states...");
+    originalStates.forEach(({ element, display }) => {
+      element.style.display = display;
+    });
+    console.log("[Chart Rendering] ✅ Visibility restored");
+  };
+}
+
+/**
  * Export atmospheric science data to PDF with professional formatting and charts
  */
 export async function exportAtmosphericDataToPDF(
@@ -513,14 +574,16 @@ export async function exportAtmosphericDataToPDF(
   },
   filename: string = "atmospheric-report.pdf"
 ) {
+  let restoreVisibility: (() => void) | null = null;
+
   try {
     console.log("========================================");
     console.log("Starting PDF export with charts...");
     console.log("========================================");
 
-    // Small delay to ensure current tab is rendered
-    console.log("Waiting for charts to render...");
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Force render all charts before capturing
+    console.log("Force rendering all charts...");
+    restoreVisibility = await forceRenderAllCharts();
 
     const pdf = new jsPDF({
       orientation: "portrait",
@@ -1011,6 +1074,11 @@ export async function exportAtmosphericDataToPDF(
         error instanceof Error ? error.message : "Unknown error"
       }`
     );
+  } finally {
+    // Restore original visibility states
+    if (restoreVisibility) {
+      restoreVisibility();
+    }
   }
 }
 
