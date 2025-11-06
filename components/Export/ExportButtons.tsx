@@ -99,14 +99,15 @@ export default function ExportButtons({
 
   return (
     <div className="relative">
-      {/* Export Button */}
+      {/* Export Button - Improved mobile visibility */}
       <button
         onClick={() => setShowMenu(!showMenu)}
         disabled={isExporting}
-        className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+        className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-2 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-base font-medium shadow-lg"
+        title={isExporting ? "Exporting..." : "Export data"}
       >
-        <Download size={16} className={isExporting ? "animate-pulse" : ""} />
-        <span className="hidden sm:inline">
+        <Download size={18} className={isExporting ? "animate-pulse" : ""} />
+        <span>
           {isExporting ? "Exporting..." : "Export"}
         </span>
       </button>

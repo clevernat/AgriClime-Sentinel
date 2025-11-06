@@ -148,8 +148,8 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        {/* Sidebar */}
-        <aside className="w-full md:w-72 lg:w-80 bg-gray-50 p-3 sm:p-4 overflow-y-auto border-b md:border-b-0 md:border-r border-gray-200 max-h-[40vh] md:max-h-none">
+        {/* Sidebar - Removed max-h restriction on mobile for full scrollability */}
+        <aside className="w-full md:w-72 lg:w-80 bg-gray-50 p-3 sm:p-4 overflow-y-auto border-b md:border-b-0 md:border-r border-gray-200">
           <div className="space-y-3 sm:space-y-4">
             {/* County Search */}
             <div className="bg-white p-3 sm:p-4 rounded-lg shadow">
@@ -167,8 +167,8 @@ export default function Home() {
             />
             <MapLegend layer={selectedLayer} />
 
-            {/* Info Panel - Hidden on mobile, visible on tablet+ */}
-            <div className="hidden md:block bg-white p-3 sm:p-4 rounded-lg shadow">
+            {/* Info Panel - Now visible on all screen sizes */}
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow">
               <h3 className="font-bold mb-2 text-sm sm:text-base text-gray-900">
                 About This Tool
               </h3>
@@ -200,8 +200,8 @@ export default function Home() {
               )}
             </div>
 
-            {/* Data Sources - Hidden on mobile, visible on tablet+ */}
-            <div className="hidden md:block bg-white p-3 sm:p-4 rounded-lg shadow">
+            {/* Data Sources - Now visible on all screen sizes */}
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow">
               <h3 className="font-bold mb-2 text-xs sm:text-sm text-gray-900">
                 Data Sources
               </h3>
