@@ -244,6 +244,98 @@ export default function Home() {
             onClose={handleCloseDashboard}
           />
         )}
+
+      {/* Footer */}
+      <footer className="bg-gradient-to-r from-green-700 to-blue-700 text-white border-t border-green-600">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+          {/* Mobile Layout: Single Column */}
+          <div className="flex flex-col gap-2 sm:gap-3 md:hidden">
+            {/* Copyright */}
+            <div className="text-center text-xs">
+              © 2025 Nathaniel Oteng. All rights reserved.
+            </div>
+
+            {/* Data Sources */}
+            <div className="text-center text-xs opacity-90">
+              Data: NOAA, EPA, USDA, Open-Meteo
+            </div>
+
+            {/* Tech Stack */}
+            <div className="text-center text-xs opacity-80">
+              Built with Next.js, PostgreSQL, Leaflet
+            </div>
+
+            {/* Links */}
+            <div className="flex justify-center gap-4 text-xs">
+              <a
+                href="https://github.com/clevernat/AgriClime-Sentinel"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-200 transition-colors underline"
+              >
+                GitHub
+              </a>
+              <a
+                href="https://github.com/clevernat/AgriClime-Sentinel#readme"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-200 transition-colors underline"
+              >
+                Documentation
+              </a>
+            </div>
+          </div>
+
+          {/* Desktop/Tablet Layout: Multi-Column */}
+          <div className="hidden md:flex md:flex-col lg:flex-row lg:justify-between lg:items-center gap-3 lg:gap-6">
+            {/* Left Section: Copyright & Purpose */}
+            <div className="flex-shrink-0">
+              <div className="text-sm font-semibold">
+                © 2025 Nathaniel Oteng
+              </div>
+              <div className="text-xs opacity-90 mt-1">
+                Advanced Climate Risk Monitoring Platform
+              </div>
+            </div>
+
+            {/* Center Section: Data Sources & Tech */}
+            <div className="flex-1 flex flex-col lg:flex-row gap-3 lg:gap-6 lg:justify-center">
+              <div className="text-xs">
+                <div className="font-semibold mb-1">Data Sources</div>
+                <div className="opacity-90">
+                  NOAA • EPA AirNow • USDA • Open-Meteo
+                </div>
+              </div>
+              <div className="text-xs">
+                <div className="font-semibold mb-1">Technology</div>
+                <div className="opacity-90">
+                  Next.js 16 • PostgreSQL + PostGIS • Leaflet.js
+                </div>
+              </div>
+            </div>
+
+            {/* Right Section: Links */}
+            <div className="flex-shrink-0 flex gap-4 text-sm">
+              <a
+                href="https://github.com/clevernat/AgriClime-Sentinel"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-200 transition-colors underline"
+              >
+                GitHub
+              </a>
+              <a
+                href="https://github.com/clevernat/AgriClime-Sentinel#readme"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-200 transition-colors underline"
+              >
+                Docs
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
