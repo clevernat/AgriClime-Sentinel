@@ -139,3 +139,8 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
+
+/* Smooth fade-in transition for map polygons */
+.county-polygon {
+  transition: fill-opacity 1s ease-in-out;
+}
