@@ -562,9 +562,9 @@ export async function exportAtmosphericDataToPDF(
     }
 
     // Air Quality Section
-    if (data.airQuality) {
-      const aqi = data.airQuality.overall?.aqi || 0;
-      const category = data.airQuality.overall?.category?.name || "Unknown";
+    if (data.airQuality && data.airQuality.overall) {
+      const aqi = data.airQuality.overall.aqi || 0;
+      const category = data.airQuality.overall.category?.name || "Unknown";
 
       // Color based on AQI
       let aqiColor: [number, number, number] = [34, 197, 94]; // Green
@@ -584,12 +584,35 @@ export async function exportAtmosphericDataToPDF(
       pdf.setTextColor(0, 0, 0);
       addText(`AQI: ${aqi} - ${category}`, 12, true);
 
+      if (data.airQuality.overall.dominantPollutant) {
+        addText(
+          `Dominant Pollutant: ${data.airQuality.overall.dominantPollutant}`,
+          10
+        );
+      }
+
       if (data.airQuality.recommendations) {
         addText("Health Recommendations:", 11, true);
-        data.airQuality.recommendations.forEach((rec: string) => {
-          addText(`• ${rec}`, 9);
-        });
+        const recs = data.airQuality.recommendations;
+        if (recs.general) addText(`• General: ${recs.general}`, 9);
+        if (recs.sensitiveGroups)
+          addText(`• Sensitive Groups: ${recs.sensitiveGroups}`, 9);
+        if (recs.activities) addText(`• Activities: ${recs.activities}`, 9);
       }
+      yPos += 5;
+    } else {
+      // Show "No Data Available" section
+      pdf.setFillColor(156, 163, 175); // Gray
+      pdf.rect(leftMargin, yPos, pageWidth, 8, "F");
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(13);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Air Quality Index", leftMargin + 3, yPos + 5.5);
+      yPos += 11;
+
+      pdf.setTextColor(0, 0, 0);
+      addText("No air quality data available for this location", 10);
       yPos += 5;
     }
 
@@ -624,6 +647,71 @@ export async function exportAtmosphericDataToPDF(
       if (indices.total_totals !== undefined) {
         addText(`Total Totals Index: ${indices.total_totals.toFixed(1)}`, 10);
       }
+      yPos += 5;
+    } else {
+      // Show "No Data Available" section
+      pdf.setFillColor(156, 163, 175); // Gray
+      pdf.rect(leftMargin, yPos, pageWidth, 8, "F");
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(13);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Severe Weather Indices", leftMargin + 3, yPos + 5.5);
+      yPos += 11;
+
+      pdf.setTextColor(0, 0, 0);
+      addText("No severe weather data available for this location", 10);
+      yPos += 5;
+    }
+
+    // Climate Trends Section
+    if (data.climateTrends && data.climateTrends.trend) {
+      pdf.setFillColor(14, 165, 233); // Sky blue
+      pdf.rect(leftMargin, yPos, pageWidth, 8, "F");
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(13);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Climate Trends", leftMargin + 3, yPos + 5.5);
+      yPos += 11;
+
+      pdf.setTextColor(0, 0, 0);
+      const trend = data.climateTrends.trend;
+      const period = data.climateTrends.period;
+
+      addText(
+        `Analysis Period: ${period.startYear} - ${period.endYear} (${period.yearsAnalyzed} years)`,
+        10,
+        true
+      );
+      addText(`Trend Direction: ${trend.trendDirection}`, 10);
+      addText(
+        `Change: ${
+          trend.percentChange > 0 ? "+" : ""
+        }${trend.percentChange.toFixed(1)}%`,
+        10
+      );
+      addText(
+        `Statistical Significance: ${
+          trend.isSignificant ? "Yes" : "No"
+        } (p=${trend.pValue.toFixed(3)})`,
+        9
+      );
+      addText(`Interpretation: ${trend.interpretation}`, 9);
+      yPos += 5;
+    } else {
+      // Show "No Data Available" section
+      pdf.setFillColor(156, 163, 175); // Gray
+      pdf.rect(leftMargin, yPos, pageWidth, 8, "F");
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(13);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Climate Trends", leftMargin + 3, yPos + 5.5);
+      yPos += 11;
+
+      pdf.setTextColor(0, 0, 0);
+      addText("No climate trend data available for this location", 10);
       yPos += 5;
     }
 
