@@ -518,9 +518,22 @@ export async function exportAtmosphericDataToPDF(
     console.log("Starting PDF export with charts...");
     console.log("========================================");
 
+    // Temporarily show all tab content to ensure all charts are rendered
+    console.log("Making all charts visible for capture...");
+    const tabContents = document.querySelectorAll('[role="tabpanel"]');
+    const originalDisplays: string[] = [];
+
+    tabContents.forEach((content, index) => {
+      const element = content as HTMLElement;
+      originalDisplays[index] = element.style.display;
+      element.style.display = "block";
+      element.style.visibility = "visible";
+      element.style.position = "relative";
+    });
+
     // Delay to ensure all charts are fully rendered
-    console.log("Waiting 1 second for charts to render...");
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log("Waiting 1.5 seconds for all charts to render...");
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     const pdf = new jsPDF({
       orientation: "portrait",
@@ -1001,9 +1014,26 @@ export async function exportAtmosphericDataToPDF(
       );
     }
 
+    // Restore original display states
+    console.log("Restoring original tab visibility...");
+    tabContents.forEach((content, index) => {
+      const element = content as HTMLElement;
+      element.style.display = originalDisplays[index] || "";
+    });
+
+    console.log("Saving PDF...");
     pdf.save(filename);
+    console.log("✅ PDF export complete!");
   } catch (error) {
     console.error("Error generating atmospheric PDF:", error);
+
+    // Restore original display states even on error
+    const tabContents = document.querySelectorAll('[role="tabpanel"]');
+    tabContents.forEach((content) => {
+      const element = content as HTMLElement;
+      element.style.display = "";
+    });
+
     throw new Error(
       `Failed to export PDF: ${
         error instanceof Error ? error.message : "Unknown error"
