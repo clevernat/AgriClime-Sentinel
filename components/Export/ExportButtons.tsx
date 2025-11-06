@@ -49,9 +49,6 @@ export default function ExportButtons({
     try {
       setIsExporting(true);
 
-      // Wait a bit for any animations to complete
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       const filename = generateFilename(
         `${data.county.name.replace(/\s+/g, "-")}_${
           data.county.state
@@ -59,9 +56,6 @@ export default function ExportButtons({
         "pdf"
       );
       await exportToPDF(dashboardElementId, data, filename);
-
-      // Success feedback
-      alert("PDF exported successfully!");
     } catch (error) {
       console.error("Export error:", error);
       const errorMessage =
@@ -77,7 +71,9 @@ export default function ExportButtons({
 
   const handleExportChart = async () => {
     if (!chartElementId) {
-      alert("No chart available to export");
+      alert(
+        "Chart export is only available when viewing the Historical Trends section. Please scroll down to see the chart."
+      );
       return;
     }
 
@@ -90,7 +86,11 @@ export default function ExportButtons({
       await exportChartAsPNG(chartElementId, filename);
     } catch (error) {
       console.error("Export error:", error);
-      alert("Failed to export chart. Please try again.");
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      alert(
+        `Failed to export chart:\n\n${errorMessage}\n\nPlease make sure the Historical Trends chart is visible.`
+      );
     } finally {
       setIsExporting(false);
       setShowMenu(false);

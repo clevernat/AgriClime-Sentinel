@@ -50,16 +50,6 @@ export default function AtmosphericExportButtons({
     try {
       setIsExporting(true);
 
-      // Wait a bit for any animations to complete
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      const element = document.getElementById(dashboardElementId);
-      if (!element) {
-        throw new Error(
-          "Dashboard element not found. Please make sure the dashboard is fully loaded."
-        );
-      }
-
       const filename = generateFilename(
         `${countyName.replace(/\s+/g, "-")}_${state}_atmospheric-report`,
         "pdf"
@@ -68,11 +58,11 @@ export default function AtmosphericExportButtons({
       // Create a minimal data object for PDF export
       const pdfData: any = {
         county: { name: countyName, state, fips: "" },
-        current_climate: {},
-        historical_trends: [],
-        growing_degree_days: 0,
-        extreme_heat_days_ytd: 0,
-        precipitation_vs_avg: {
+        currentClimate: {},
+        historicalTrends: [],
+        growingDegreeDays: 0,
+        extremeHeatDaysYtd: 0,
+        precipitationVsAvg: {
           current: 0,
           historical_avg: 0,
           percent_difference: 0,
@@ -80,9 +70,6 @@ export default function AtmosphericExportButtons({
       };
 
       await exportToPDF(dashboardElementId, pdfData, filename);
-
-      // Success feedback
-      alert("PDF exported successfully!");
     } catch (error) {
       console.error("Export error:", error);
       const errorMessage =
