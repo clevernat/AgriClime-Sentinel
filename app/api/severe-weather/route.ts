@@ -31,13 +31,6 @@ async function fetchNOAASounding(
     // which provides BUFKIT-formatted soundings from HRRR, RAP, and other models
     const baseUrl = "https://mesonet.agron.iastate.edu/api/1/sounding.json";
 
-    // Get current time for latest model run
-    const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = String(now.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(now.getUTCDate()).padStart(2, "0");
-    const hour = String(now.getUTCHours()).padStart(2, "0");
-
     // Try to fetch HRRR model sounding
     const url = `${baseUrl}?lat=${lat}&lon=${lon}&model=hrrr`;
 
@@ -149,7 +142,13 @@ export async function GET(request: NextRequest) {
 
     const indices = calculateSevereWeatherIndices(sounding);
 
-    const response: any = {
+    const response: {
+      success: boolean;
+      indices: ReturnType<typeof calculateSevereWeatherIndices>;
+      dataSource: string | null;
+      timestamp: string;
+      location?: { latitude: number; longitude: number };
+    } = {
       success: true,
       indices,
       dataSource,

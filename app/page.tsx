@@ -21,12 +21,20 @@ const AtmosphericScienceDashboard = dynamic(
   { ssr: false }
 );
 
+interface SelectedCountyData {
+  fips: string;
+  name: string;
+  state: string;
+  latitude: number;
+  longitude: number;
+}
+
 export default function Home() {
   const [selectedLayer, setSelectedLayer] = useState<MapDataLayer>("drought");
   const [selectedCrop, setSelectedCrop] = useState<CropType>("corn");
   const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
-  const [selectedCountyData, setSelectedCountyData] = useState<any>(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [selectedCountyData, setSelectedCountyData] =
+    useState<SelectedCountyData | null>(null);
   const [dashboardType, setDashboardType] = useState<
     "agricultural" | "atmospheric"
   >("atmospheric");

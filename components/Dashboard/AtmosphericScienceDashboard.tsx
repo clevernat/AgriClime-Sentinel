@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   X,
   AlertTriangle,
@@ -21,6 +21,43 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import type { WeatherAlert } from "@/lib/api/noaa-weather";
+import type { SevereWeatherIndices } from "@/lib/api/severe-weather-indices";
+
+interface AirQualityData {
+  success: boolean;
+  location: { latitude: number; longitude: number };
+  overall: {
+    aqi: number;
+    category: {
+      number: number;
+      name: string;
+      color: string;
+    };
+    dominantPollutant: string;
+  };
+  recommendations: string[];
+  observations: unknown[];
+}
+
+interface ClimateTrendsData {
+  success: boolean;
+  fips: string;
+  type: string;
+  dataSource: string;
+  location: { latitude: number; longitude: number };
+  period: { startYear: number; endYear: number; yearsAnalyzed: number };
+  trend: {
+    slope: number;
+    direction: string;
+    significance: string;
+    pValue: number;
+    rSquared: number;
+  };
+  data: Array<{ year: number; value: number }>;
+  movingAverage: Array<{ year: number; value: number }>;
+  changePoints: number[];
+}
 
 interface AtmosphericScienceDashboardProps {
   fips: string;
@@ -44,17 +81,16 @@ export default function AtmosphericScienceDashboard({
     "alerts" | "severe" | "airquality" | "trends"
   >("alerts");
 
-  const [weatherAlerts, setWeatherAlerts] = useState<any[]>([]);
-  const [severeWeatherIndices, setSevereWeatherIndices] = useState<any>(null);
+  const [weatherAlerts, setWeatherAlerts] = useState<WeatherAlert[]>([]);
+  const [severeWeatherIndices, setSevereWeatherIndices] =
+    useState<SevereWeatherIndices | null>(null);
   const [severeWeatherDataSource, setSevereWeatherDataSource] = useState<
     string | null
   >(null);
-  const [airQuality, setAirQuality] = useState<any>(null);
-  const [climateTrends, setClimateTrends] = useState<any>(null);
-
-  useEffect(() => {
-    fetchAtmosphericData();
-  }, [fips, latitude, longitude]);
+  const [airQuality, setAirQuality] = useState<AirQualityData | null>(null);
+  const [climateTrends, setClimateTrends] = useState<ClimateTrendsData | null>(
+    null
+  );
 
   /**
    * Fetches atmospheric data from multiple APIs in parallel for optimal performance.
@@ -70,7 +106,7 @@ export default function AtmosphericScienceDashboard({
    * 3. Air Quality (EPA AirNow)
    * 4. Climate Trends (Open-Meteo Historical)
    */
-  const fetchAtmosphericData = async () => {
+  const fetchAtmosphericData = useCallback(async () => {
     setLoading(true);
 
     try {
@@ -127,7 +163,11 @@ export default function AtmosphericScienceDashboard({
     } finally {
       setLoading(false);
     }
-  };
+  }, [fips, latitude, longitude]);
+
+  useEffect(() => {
+    fetchAtmosphericData();
+  }, [fetchAtmosphericData]);
 
   const getSeverityColor = (severity: string) => {
     switch (severity?.toLowerCase()) {
@@ -341,9 +381,9 @@ export default function AtmosphericScienceDashboard({
                     No Severe Weather Data Available
                   </h4>
                   <p className="text-gray-600 mb-4 max-w-2xl mx-auto">
-                    Real-time severe weather indices from NOAA's High-Resolution
-                    Rapid Refresh (HRRR) model are not currently available for
-                    this location.
+                    Real-time severe weather indices from NOAA&apos;s
+                    High-Resolution Rapid Refresh (HRRR) model are not currently
+                    available for this location.
                   </p>
                   <p className="text-sm text-gray-500">
                     Data Source: NOAA HRRR Model via Iowa State Mesonet API
@@ -594,23 +634,23 @@ export default function AtmosphericScienceDashboard({
                       {severeWeatherDataSource === "NOAA HRRR Model" ? (
                         <>
                           Real-time NOAA HRRR (High-Resolution Rapid Refresh)
-                          model data. HRRR is NOAA's 3km resolution atmospheric
-                          model that provides hourly updated forecasts and is
-                          used by the National Weather Service for severe
-                          weather prediction.
+                          model data. HRRR is NOAA&apos;s 3km resolution
+                          atmospheric model that provides hourly updated
+                          forecasts and is used by the National Weather Service
+                          for severe weather prediction.
                         </>
                       ) : (
                         <>
                           <strong>Real-time NOAA HRRR Integration:</strong> This
                           system is configured to fetch atmospheric sounding
-                          data from NOAA's High-Resolution Rapid Refresh (HRRR)
-                          model via the Iowa State Mesonet API. The API attempts
-                          to retrieve real-time model data for each location.
-                          Currently displaying calculated indices based on
-                          atmospheric profile data. HRRR provides 3km resolution
-                          forecasts updated hourly and is the same model used by
-                          the National Weather Service for severe weather
-                          forecasting.
+                          data from NOAA&apos;s High-Resolution Rapid Refresh
+                          (HRRR) model via the Iowa State Mesonet API. The API
+                          attempts to retrieve real-time model data for each
+                          location. Currently displaying calculated indices
+                          based on atmospheric profile data. HRRR provides 3km
+                          resolution forecasts updated hourly and is the same
+                          model used by the National Weather Service for severe
+                          weather forecasting.
                         </>
                       )}
                     </p>

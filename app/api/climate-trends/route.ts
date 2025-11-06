@@ -3,7 +3,6 @@ import { supabase } from "@/lib/supabase";
 import {
   analyzeTemperatureTrend,
   analyzePrecipitationTrend,
-  analyzeExtremeEvents,
   calculateMovingAverage,
   detectChangePoints,
   type ClimateTrendData,
@@ -30,7 +29,7 @@ function generateRealisticClimateTrends(
 
   // Regional warming rates (°C per decade) based on NOAA climate data
   // Higher latitudes warm faster, western US has different patterns
-  const getWarmingRate = (lat: number, lon: number): number => {
+  const getWarmingRate = (lat: number): number => {
     // Northern latitudes (>45°N) warm faster: 0.3-0.4°C/decade
     if (lat > 45) return 0.35 + Math.random() * 0.05;
     // Mid-latitudes (35-45°N): 0.25-0.35°C/decade
@@ -49,7 +48,7 @@ function generateRealisticClimateTrends(
     return 0.5 + Math.random() * 1.0;
   };
 
-  const warmingRate = getWarmingRate(latitude, longitude);
+  const warmingRate = getWarmingRate(latitude);
   const precipTrend = getPrecipitationTrend(latitude, longitude);
 
   // Base climate normals (1991-2020 average)
@@ -194,7 +193,7 @@ async function fetchHistoricalClimateData(
             trendData.push({ year, value: totalPrecip });
           }
         }
-      } catch (fetchError: any) {
+      } catch {
         // Silently continue on fetch errors
         continue;
       }

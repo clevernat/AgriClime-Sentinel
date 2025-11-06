@@ -16,10 +16,10 @@ interface State {
 
 /**
  * Error Boundary Component
- * 
+ *
  * Catches JavaScript errors anywhere in the child component tree,
  * logs those errors, and displays a fallback UI instead of crashing.
- * 
+ *
  * In production, errors should be sent to an error monitoring service
  * like Sentry, LogRocket, or Rollbar.
  */
@@ -62,7 +62,8 @@ export class ErrorBoundary extends Component<Props, State> {
       stack: error.stack,
       componentStack: errorInfo.componentStack,
       timestamp: new Date().toISOString(),
-      userAgent: typeof window !== "undefined" ? window.navigator.userAgent : "unknown",
+      userAgent:
+        typeof window !== "undefined" ? window.navigator.userAgent : "unknown",
       url: typeof window !== "undefined" ? window.location.href : "unknown",
     };
 
@@ -119,7 +120,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   Something went wrong
                 </h1>
                 <p className="text-gray-600">
-                  We're sorry for the inconvenience
+                  We&apos;re sorry for the inconvenience
                 </p>
               </div>
             </div>
@@ -133,16 +134,17 @@ export class ErrorBoundary extends Component<Props, State> {
               </p>
             </div>
 
-            {process.env.NODE_ENV === "development" && this.state.error?.stack && (
-              <details className="mb-6">
-                <summary className="cursor-pointer text-sm font-semibold text-gray-700 mb-2">
-                  Stack Trace (Development Only)
-                </summary>
-                <pre className="text-xs text-gray-600 bg-gray-50 p-4 rounded-lg overflow-auto max-h-64">
-                  {this.state.error.stack}
-                </pre>
-              </details>
-            )}
+            {process.env.NODE_ENV === "development" &&
+              this.state.error?.stack && (
+                <details className="mb-6">
+                  <summary className="cursor-pointer text-sm font-semibold text-gray-700 mb-2">
+                    Stack Trace (Development Only)
+                  </summary>
+                  <pre className="text-xs text-gray-600 bg-gray-50 p-4 rounded-lg overflow-auto max-h-64">
+                    {this.state.error.stack}
+                  </pre>
+                </details>
+              )}
 
             <div className="flex flex-wrap gap-3">
               <button
@@ -198,4 +200,3 @@ export function withErrorBoundary<P extends object>(
     );
   };
 }
-
