@@ -166,10 +166,10 @@ export default function Home() {
           )}
         </button>
 
-        {/* Backdrop for mobile sidebar - Darkened blurred map background */}
+        {/* Backdrop for mobile sidebar - Click to close */}
         {isMobileSidebarOpen && (
           <div
-            className="md:hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md z-[998]"
+            className="md:hidden fixed inset-0 z-[998]"
             onClick={() => setIsMobileSidebarOpen(false)}
           />
         )}
@@ -274,7 +274,11 @@ export default function Home() {
         </aside>
 
         {/* Map Container - Full height on mobile */}
-        <main className="flex-1 relative h-full md:min-h-0">
+        <main
+          className={`flex-1 relative h-full md:min-h-0 transition-all duration-300 ${
+            isMobileSidebarOpen ? 'blur-sm brightness-50' : ''
+          }`}
+        >
           <CountyMap
             layer={selectedLayer}
             cropType={selectedCrop}
