@@ -90,7 +90,7 @@ export async function getClimateDataRange(
  * Get current drought status for all counties using pagination
  */
 export async function getCurrentDroughtStatus() {
-  const allData: any[] = [];
+  const allData: Record<string, unknown>[] = [];
   const pageSize = 1000;
   let page = 0;
   let hasMore = true;
@@ -123,7 +123,7 @@ export async function getCurrentDroughtStatus() {
  * Get 30-day precipitation totals for all counties using pagination
  */
 export async function get30DayPrecipitation() {
-  const allData: any[] = [];
+  const allData: Record<string, unknown>[] = [];
   const pageSize = 1000;
   let page = 0;
   let hasMore = true;
@@ -177,7 +177,7 @@ export async function getTemperatureAnomaly(
  */
 export async function getAllTemperatureAnomalies(date: string) {
   // Get current climate data - fetch all records with pagination
-  const allClimateData: any[] = [];
+  const allClimateData: Record<string, unknown>[] = [];
   const pageSize = 1000;
   let page = 0;
   let hasMore = true;
@@ -205,7 +205,7 @@ export async function getAllTemperatureAnomalies(date: string) {
 
   // Get baselines for current month - fetch all records with pagination
   const month = new Date(date).getMonth() + 1;
-  const allBaselines: any[] = [];
+  const allBaselines: Record<string, unknown>[] = [];
   page = 0;
   hasMore = true;
 
@@ -294,7 +294,7 @@ export async function getCropRiskIndex(
  * Get crop risk indices for all counties for a specific crop using pagination
  */
 export async function getAllCropRiskIndices(cropType: string, date?: string) {
-  const allData: any[] = [];
+  const allData: Record<string, unknown>[] = [];
   const pageSize = 1000;
   let page = 0;
   let hasMore = true;

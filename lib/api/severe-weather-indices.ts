@@ -1,7 +1,7 @@
 /**
  * Severe Weather Atmospheric Indices Calculator
  * Calculates atmospheric instability indices used for severe weather prediction
- * 
+ *
  * These indices are used by meteorologists to assess the potential for:
  * - Tornadoes
  * - Severe thunderstorms
@@ -26,26 +26,26 @@ export interface SevereWeatherIndices {
   kIndex: number; // K-Index
   totalTotals: number; // Total Totals Index
   showalterIndex: number; // Showalter Stability Index
-  
+
   // Wind Shear Indices
   bulkShear0to6km: number; // 0-6km bulk wind shear (m/s)
   stormRelativeHelicity0to3km: number; // 0-3km SRH (m²/s²)
-  
+
   // Composite Indices
   significantTornadoParameter: number; // STP
   supercellCompositeParameter: number; // SCP
-  
+
   // Interpretation
-  tornadoPotential: 'None' | 'Low' | 'Moderate' | 'High' | 'Extreme';
-  severeThunderstormPotential: 'None' | 'Low' | 'Moderate' | 'High' | 'Extreme';
-  hailPotential: 'None' | 'Low' | 'Moderate' | 'High' | 'Extreme';
+  tornadoPotential: "None" | "Low" | "Moderate" | "High" | "Extreme";
+  severeThunderstormPotential: "None" | "Low" | "Moderate" | "High" | "Extreme";
+  hailPotential: "None" | "Low" | "Moderate" | "High" | "Extreme";
 }
 
 /**
  * Calculate CAPE (Convective Available Potential Energy)
  * CAPE represents the amount of energy available for convection
  * Higher values indicate greater potential for severe weather
- * 
+ *
  * Interpretation:
  * - 0-1000 J/kg: Weak instability
  * - 1000-2500 J/kg: Moderate instability
@@ -55,41 +55,35 @@ export interface SevereWeatherIndices {
 function calculateCAPE(sounding: AtmosphericSounding): number {
   // Simplified CAPE calculation
   // In production, use a proper thermodynamic library
-  
-  const { pressure, temperature, dewpoint } = sounding;
+
+  const { pressure, temperature } = sounding;
   let cape = 0;
-  
+
   // Find Lifting Condensation Level (LCL)
   const surfaceTemp = temperature[0];
-  const surfaceDewpoint = dewpoint[0];
-  const surfacePressure = pressure[0];
-  
-  // Approximate LCL using Espy's equation
-  const lclHeight = 125 * (surfaceTemp - surfaceDewpoint);
-  
+
   // Calculate parcel temperature at each level
   for (let i = 0; i < pressure.length - 1; i++) {
-    const p = pressure[i];
     const envTemp = temperature[i];
-    
+
     // Dry adiabatic lapse rate: 9.8°C/km
     // Moist adiabatic lapse rate: ~6°C/km (simplified)
-    const parcelTemp = surfaceTemp - (9.8 * (sounding.height[i] / 1000));
-    
+    const parcelTemp = surfaceTemp - 9.8 * (sounding.height[i] / 1000);
+
     // If parcel is warmer than environment, add to CAPE
     if (parcelTemp > envTemp) {
       const dz = sounding.height[i + 1] - sounding.height[i];
       cape += 9.81 * ((parcelTemp - envTemp) / envTemp) * dz;
     }
   }
-  
+
   return Math.max(0, cape);
 }
 
 /**
  * Calculate Lifted Index (LI)
  * Measures the temperature difference between a lifted parcel and the environment at 500 hPa
- * 
+ *
  * Interpretation:
  * - LI > 2: Stable atmosphere
  * - LI 0 to 2: Marginally unstable
@@ -99,24 +93,24 @@ function calculateCAPE(sounding: AtmosphericSounding): number {
  */
 function calculateLiftedIndex(sounding: AtmosphericSounding): number {
   const { pressure, temperature } = sounding;
-  
+
   // Find 500 hPa level
-  const idx500 = pressure.findIndex(p => p <= 500);
+  const idx500 = pressure.findIndex((p) => p <= 500);
   if (idx500 === -1) return 0;
-  
+
   const envTemp500 = temperature[idx500];
-  
+
   // Lift surface parcel to 500 hPa (simplified)
   const surfaceTemp = temperature[0];
   const parcelTemp500 = surfaceTemp - 30; // Approximate cooling
-  
+
   return envTemp500 - parcelTemp500;
 }
 
 /**
  * Calculate K-Index
  * Measures thunderstorm potential based on temperature lapse rate and moisture
- * 
+ *
  * Interpretation:
  * - K < 20: Thunderstorms unlikely
  * - K 20-25: Isolated thunderstorms possible
@@ -126,27 +120,27 @@ function calculateLiftedIndex(sounding: AtmosphericSounding): number {
  */
 function calculateKIndex(sounding: AtmosphericSounding): number {
   const { pressure, temperature, dewpoint } = sounding;
-  
+
   // Find required levels
-  const idx850 = pressure.findIndex(p => p <= 850);
-  const idx700 = pressure.findIndex(p => p <= 700);
-  const idx500 = pressure.findIndex(p => p <= 500);
-  
+  const idx850 = pressure.findIndex((p) => p <= 850);
+  const idx700 = pressure.findIndex((p) => p <= 700);
+  const idx500 = pressure.findIndex((p) => p <= 500);
+
   if (idx850 === -1 || idx700 === -1 || idx500 === -1) return 0;
-  
+
   const t850 = temperature[idx850];
   const td850 = dewpoint[idx850];
   const t700 = temperature[idx700];
   const td700 = dewpoint[idx700];
   const t500 = temperature[idx500];
-  
-  return (t850 - t500) + td850 - (t700 - td700);
+
+  return t850 - t500 + td850 - (t700 - td700);
 }
 
 /**
  * Calculate Total Totals Index
  * Combines vertical temperature difference and low-level moisture
- * 
+ *
  * Interpretation:
  * - TT < 44: Thunderstorms unlikely
  * - TT 44-50: Thunderstorms possible
@@ -156,19 +150,19 @@ function calculateKIndex(sounding: AtmosphericSounding): number {
  */
 function calculateTotalTotals(sounding: AtmosphericSounding): number {
   const { pressure, temperature, dewpoint } = sounding;
-  
-  const idx850 = pressure.findIndex(p => p <= 850);
-  const idx500 = pressure.findIndex(p => p <= 500);
-  
+
+  const idx850 = pressure.findIndex((p) => p <= 850);
+  const idx500 = pressure.findIndex((p) => p <= 500);
+
   if (idx850 === -1 || idx500 === -1) return 0;
-  
+
   const t850 = temperature[idx850];
   const td850 = dewpoint[idx850];
   const t500 = temperature[idx500];
-  
+
   const crossTotals = td850 - t500;
   const verticalTotals = t850 - t500;
-  
+
   return crossTotals + verticalTotals;
 }
 
@@ -176,7 +170,7 @@ function calculateTotalTotals(sounding: AtmosphericSounding): number {
  * Calculate Bulk Wind Shear (0-6 km)
  * Measures wind speed change with height
  * Important for supercell development
- * 
+ *
  * Interpretation:
  * - < 10 m/s: Weak shear
  * - 10-20 m/s: Moderate shear
@@ -185,18 +179,20 @@ function calculateTotalTotals(sounding: AtmosphericSounding): number {
  */
 function calculateBulkShear(sounding: AtmosphericSounding): number {
   const { height, windSpeed, windDirection } = sounding;
-  
+
   // Find surface and 6km levels
-  const idx6km = height.findIndex(h => h >= 6000);
+  const idx6km = height.findIndex((h) => h >= 6000);
   if (idx6km === -1) return 0;
-  
+
   // Calculate u and v components
-  const u0 = windSpeed[0] * Math.sin(windDirection[0] * Math.PI / 180);
-  const v0 = windSpeed[0] * Math.cos(windDirection[0] * Math.PI / 180);
-  
-  const u6 = windSpeed[idx6km] * Math.sin(windDirection[idx6km] * Math.PI / 180);
-  const v6 = windSpeed[idx6km] * Math.cos(windDirection[idx6km] * Math.PI / 180);
-  
+  const u0 = windSpeed[0] * Math.sin((windDirection[0] * Math.PI) / 180);
+  const v0 = windSpeed[0] * Math.cos((windDirection[0] * Math.PI) / 180);
+
+  const u6 =
+    windSpeed[idx6km] * Math.sin((windDirection[idx6km] * Math.PI) / 180);
+  const v6 =
+    windSpeed[idx6km] * Math.cos((windDirection[idx6km] * Math.PI) / 180);
+
   // Calculate magnitude of shear vector
   return Math.sqrt(Math.pow(u6 - u0, 2) + Math.pow(v6 - v0, 2));
 }
@@ -205,7 +201,7 @@ function calculateBulkShear(sounding: AtmosphericSounding): number {
  * Calculate Storm-Relative Helicity (0-3 km)
  * Measures potential for rotating updrafts
  * Critical for tornado forecasting
- * 
+ *
  * Interpretation:
  * - < 100 m²/s²: Low tornado potential
  * - 100-250 m²/s²: Moderate tornado potential
@@ -222,20 +218,25 @@ function calculateSRH(sounding: AtmosphericSounding): number {
 /**
  * Calculate Significant Tornado Parameter (STP)
  * Composite index for significant tornado potential
- * 
+ *
  * Interpretation:
  * - STP < 1: Low tornado risk
  * - STP 1-3: Moderate tornado risk
  * - STP 3-6: High tornado risk
  * - STP > 6: Extreme tornado risk
  */
-function calculateSTP(cape: number, srh: number, bulkShear: number, liftedIndex: number): number {
+function calculateSTP(
+  cape: number,
+  srh: number,
+  bulkShear: number,
+  liftedIndex: number
+): number {
   // Simplified STP calculation
   const capeTerm = cape / 1500;
   const srhTerm = srh / 150;
   const shearTerm = bulkShear / 20;
   const liTerm = Math.max(0, -liftedIndex) / 2;
-  
+
   return capeTerm * srhTerm * shearTerm * liTerm;
 }
 
@@ -255,26 +256,28 @@ export function calculateSevereWeatherIndices(
   const srh = calculateSRH(sounding);
   const stp = calculateSTP(cape, srh, bulkShear, liftedIndex);
   const scp = (cape / 1000) * (bulkShear / 20); // Simplified SCP
-  
+
   // Determine potentials
-  let tornadoPotential: SevereWeatherIndices['tornadoPotential'] = 'None';
-  if (stp > 6) tornadoPotential = 'Extreme';
-  else if (stp > 3) tornadoPotential = 'High';
-  else if (stp > 1) tornadoPotential = 'Moderate';
-  else if (stp > 0.5) tornadoPotential = 'Low';
-  
-  let severeThunderstormPotential: SevereWeatherIndices['severeThunderstormPotential'] = 'None';
-  if (cape > 4000 && bulkShear > 20) severeThunderstormPotential = 'Extreme';
-  else if (cape > 2500 && bulkShear > 15) severeThunderstormPotential = 'High';
-  else if (cape > 1000 && bulkShear > 10) severeThunderstormPotential = 'Moderate';
-  else if (cape > 500) severeThunderstormPotential = 'Low';
-  
-  let hailPotential: SevereWeatherIndices['hailPotential'] = 'None';
-  if (cape > 3000 && liftedIndex < -6) hailPotential = 'Extreme';
-  else if (cape > 2000 && liftedIndex < -4) hailPotential = 'High';
-  else if (cape > 1000 && liftedIndex < -2) hailPotential = 'Moderate';
-  else if (cape > 500) hailPotential = 'Low';
-  
+  let tornadoPotential: SevereWeatherIndices["tornadoPotential"] = "None";
+  if (stp > 6) tornadoPotential = "Extreme";
+  else if (stp > 3) tornadoPotential = "High";
+  else if (stp > 1) tornadoPotential = "Moderate";
+  else if (stp > 0.5) tornadoPotential = "Low";
+
+  let severeThunderstormPotential: SevereWeatherIndices["severeThunderstormPotential"] =
+    "None";
+  if (cape > 4000 && bulkShear > 20) severeThunderstormPotential = "Extreme";
+  else if (cape > 2500 && bulkShear > 15) severeThunderstormPotential = "High";
+  else if (cape > 1000 && bulkShear > 10)
+    severeThunderstormPotential = "Moderate";
+  else if (cape > 500) severeThunderstormPotential = "Low";
+
+  let hailPotential: SevereWeatherIndices["hailPotential"] = "None";
+  if (cape > 3000 && liftedIndex < -6) hailPotential = "Extreme";
+  else if (cape > 2000 && liftedIndex < -4) hailPotential = "High";
+  else if (cape > 1000 && liftedIndex < -2) hailPotential = "Moderate";
+  else if (cape > 500) hailPotential = "Low";
+
   return {
     cape,
     cin,
@@ -306,4 +309,3 @@ export function generateSampleSounding(): AtmosphericSounding {
     windDirection: [180, 200, 220, 240, 260, 270, 280, 285, 290],
   };
 }
-

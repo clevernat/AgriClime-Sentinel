@@ -9,9 +9,9 @@ export interface WeatherAlert {
   event: string; // e.g., "Tornado Warning", "Severe Thunderstorm Warning"
   headline: string;
   description: string;
-  severity: 'Extreme' | 'Severe' | 'Moderate' | 'Minor' | 'Unknown';
-  urgency: 'Immediate' | 'Expected' | 'Future' | 'Past' | 'Unknown';
-  certainty: 'Observed' | 'Likely' | 'Possible' | 'Unlikely' | 'Unknown';
+  severity: "Extreme" | "Severe" | "Moderate" | "Minor" | "Unknown";
+  urgency: "Immediate" | "Expected" | "Future" | "Past" | "Unknown";
+  certainty: "Observed" | "Likely" | "Possible" | "Unlikely" | "Unknown";
   onset: string; // ISO 8601 datetime
   expires: string; // ISO 8601 datetime
   areaDesc: string;
@@ -63,33 +63,36 @@ export async function getWeatherAlerts(
       `https://api.weather.gov/alerts/active?point=${latitude},${longitude}`,
       {
         headers: {
-          'User-Agent': '(AgriClime Sentinel, contact@agriclime.com)',
+          "User-Agent": "(AgriClime Sentinel, contact@agriclime.com)",
         },
       }
     );
 
     if (!response.ok) {
-      console.error('NOAA alerts API error:', response.status);
+      console.error("NOAA alerts API error:", response.status);
       return [];
     }
 
     const data = await response.json();
-    
-    return data.features?.map((feature: any) => ({
-      id: feature.id,
-      event: feature.properties.event,
-      headline: feature.properties.headline,
-      description: feature.properties.description,
-      severity: feature.properties.severity,
-      urgency: feature.properties.urgency,
-      certainty: feature.properties.certainty,
-      onset: feature.properties.onset,
-      expires: feature.properties.expires,
-      areaDesc: feature.properties.areaDesc,
-      instruction: feature.properties.instruction,
-    })) || [];
+
+    return (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data.features?.map((feature: Record<string, any>) => ({
+        id: feature.id,
+        event: feature.properties.event,
+        headline: feature.properties.headline,
+        description: feature.properties.description,
+        severity: feature.properties.severity,
+        urgency: feature.properties.urgency,
+        certainty: feature.properties.certainty,
+        onset: feature.properties.onset,
+        expires: feature.properties.expires,
+        areaDesc: feature.properties.areaDesc,
+        instruction: feature.properties.instruction,
+      })) || []
+    );
   } catch (error) {
-    console.error('Error fetching weather alerts:', error);
+    console.error("Error fetching weather alerts:", error);
     return [];
   }
 }
@@ -107,33 +110,36 @@ export async function getCountyWeatherAlerts(
       `https://api.weather.gov/alerts/active?area=${stateFips}${countyFips}`,
       {
         headers: {
-          'User-Agent': '(AgriClime Sentinel, contact@agriclime.com)',
+          "User-Agent": "(AgriClime Sentinel, contact@agriclime.com)",
         },
       }
     );
 
     if (!response.ok) {
-      console.error('NOAA county alerts API error:', response.status);
+      console.error("NOAA county alerts API error:", response.status);
       return [];
     }
 
     const data = await response.json();
-    
-    return data.features?.map((feature: any) => ({
-      id: feature.id,
-      event: feature.properties.event,
-      headline: feature.properties.headline,
-      description: feature.properties.description,
-      severity: feature.properties.severity,
-      urgency: feature.properties.urgency,
-      certainty: feature.properties.certainty,
-      onset: feature.properties.onset,
-      expires: feature.properties.expires,
-      areaDesc: feature.properties.areaDesc,
-      instruction: feature.properties.instruction,
-    })) || [];
+
+    return (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data.features?.map((feature: Record<string, any>) => ({
+        id: feature.id,
+        event: feature.properties.event,
+        headline: feature.properties.headline,
+        description: feature.properties.description,
+        severity: feature.properties.severity,
+        urgency: feature.properties.urgency,
+        certainty: feature.properties.certainty,
+        onset: feature.properties.onset,
+        expires: feature.properties.expires,
+        areaDesc: feature.properties.areaDesc,
+        instruction: feature.properties.instruction,
+      })) || []
+    );
   } catch (error) {
-    console.error('Error fetching county weather alerts:', error);
+    console.error("Error fetching county weather alerts:", error);
     return [];
   }
 }
@@ -151,13 +157,13 @@ export async function getCurrentWeather(
       `https://api.weather.gov/points/${latitude},${longitude}`,
       {
         headers: {
-          'User-Agent': '(AgriClime Sentinel, contact@agriclime.com)',
+          "User-Agent": "(AgriClime Sentinel, contact@agriclime.com)",
         },
       }
     );
 
     if (!pointResponse.ok) {
-      console.error('NOAA points API error:', pointResponse.status);
+      console.error("NOAA points API error:", pointResponse.status);
       return null;
     }
 
@@ -167,12 +173,12 @@ export async function getCurrentWeather(
     // Get the nearest observation station
     const stationsResponse = await fetch(observationStationsUrl, {
       headers: {
-        'User-Agent': '(AgriClime Sentinel, contact@agriclime.com)',
+        "User-Agent": "(AgriClime Sentinel, contact@agriclime.com)",
       },
     });
 
     if (!stationsResponse.ok) {
-      console.error('NOAA stations API error:', stationsResponse.status);
+      console.error("NOAA stations API error:", stationsResponse.status);
       return null;
     }
 
@@ -180,7 +186,7 @@ export async function getCurrentWeather(
     const stationId = stationsData.features?.[0]?.properties?.stationIdentifier;
 
     if (!stationId) {
-      console.error('No observation station found');
+      console.error("No observation station found");
       return null;
     }
 
@@ -189,13 +195,13 @@ export async function getCurrentWeather(
       `https://api.weather.gov/stations/${stationId}/observations/latest`,
       {
         headers: {
-          'User-Agent': '(AgriClime Sentinel, contact@agriclime.com)',
+          "User-Agent": "(AgriClime Sentinel, contact@agriclime.com)",
         },
       }
     );
 
     if (!obsResponse.ok) {
-      console.error('NOAA observation API error:', obsResponse.status);
+      console.error("NOAA observation API error:", obsResponse.status);
       return null;
     }
 
@@ -215,13 +221,14 @@ export async function getCurrentWeather(
       heatIndex: props.heatIndex?.value,
       windChill: props.windChill?.value,
       precipitationLastHour: props.precipitationLastHour?.value,
-      cloudLayers: props.cloudLayers?.map((layer: any) => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      cloudLayers: props.cloudLayers?.map((layer: Record<string, any>) => ({
         base: layer.base?.value || 0,
         amount: layer.amount,
       })),
     };
   } catch (error) {
-    console.error('Error fetching current weather:', error);
+    console.error("Error fetching current weather:", error);
     return null;
   }
 }
@@ -239,13 +246,13 @@ export async function getWeatherForecast(
       `https://api.weather.gov/points/${latitude},${longitude}`,
       {
         headers: {
-          'User-Agent': '(AgriClime Sentinel, contact@agriclime.com)',
+          "User-Agent": "(AgriClime Sentinel, contact@agriclime.com)",
         },
       }
     );
 
     if (!pointResponse.ok) {
-      console.error('NOAA points API error:', pointResponse.status);
+      console.error("NOAA points API error:", pointResponse.status);
       return [];
     }
 
@@ -255,32 +262,35 @@ export async function getWeatherForecast(
     // Get the forecast
     const forecastResponse = await fetch(forecastUrl, {
       headers: {
-        'User-Agent': '(AgriClime Sentinel, contact@agriclime.com)',
+        "User-Agent": "(AgriClime Sentinel, contact@agriclime.com)",
       },
     });
 
     if (!forecastResponse.ok) {
-      console.error('NOAA forecast API error:', forecastResponse.status);
+      console.error("NOAA forecast API error:", forecastResponse.status);
       return [];
     }
 
     const forecastData = await forecastResponse.json();
 
-    return forecastData.properties.periods?.map((period: any) => ({
-      name: period.name,
-      startTime: period.startTime,
-      endTime: period.endTime,
-      isDaytime: period.isDaytime,
-      temperature: period.temperature,
-      temperatureUnit: period.temperatureUnit,
-      windSpeed: period.windSpeed,
-      windDirection: period.windDirection,
-      shortForecast: period.shortForecast,
-      detailedForecast: period.detailedForecast,
-      probabilityOfPrecipitation: period.probabilityOfPrecipitation?.value,
-    })) || [];
+    return (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      forecastData.properties.periods?.map((period: Record<string, any>) => ({
+        name: period.name,
+        startTime: period.startTime,
+        endTime: period.endTime,
+        isDaytime: period.isDaytime,
+        temperature: period.temperature,
+        temperatureUnit: period.temperatureUnit,
+        windSpeed: period.windSpeed,
+        windDirection: period.windDirection,
+        shortForecast: period.shortForecast,
+        detailedForecast: period.detailedForecast,
+        probabilityOfPrecipitation: period.probabilityOfPrecipitation?.value,
+      })) || []
+    );
   } catch (error) {
-    console.error('Error fetching weather forecast:', error);
+    console.error("Error fetching weather forecast:", error);
     return [];
   }
 }
@@ -290,38 +300,37 @@ export async function getWeatherForecast(
  */
 export async function getAllActiveAlerts(): Promise<WeatherAlert[]> {
   try {
-    const response = await fetch(
-      'https://api.weather.gov/alerts/active',
-      {
-        headers: {
-          'User-Agent': '(AgriClime Sentinel, contact@agriclime.com)',
-        },
-      }
-    );
+    const response = await fetch("https://api.weather.gov/alerts/active", {
+      headers: {
+        "User-Agent": "(AgriClime Sentinel, contact@agriclime.com)",
+      },
+    });
 
     if (!response.ok) {
-      console.error('NOAA all alerts API error:', response.status);
+      console.error("NOAA all alerts API error:", response.status);
       return [];
     }
 
     const data = await response.json();
-    
-    return data.features?.map((feature: any) => ({
-      id: feature.id,
-      event: feature.properties.event,
-      headline: feature.properties.headline,
-      description: feature.properties.description,
-      severity: feature.properties.severity,
-      urgency: feature.properties.urgency,
-      certainty: feature.properties.certainty,
-      onset: feature.properties.onset,
-      expires: feature.properties.expires,
-      areaDesc: feature.properties.areaDesc,
-      instruction: feature.properties.instruction,
-    })) || [];
+
+    return (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data.features?.map((feature: Record<string, any>) => ({
+        id: feature.id,
+        event: feature.properties.event,
+        headline: feature.properties.headline,
+        description: feature.properties.description,
+        severity: feature.properties.severity,
+        urgency: feature.properties.urgency,
+        certainty: feature.properties.certainty,
+        onset: feature.properties.onset,
+        expires: feature.properties.expires,
+        areaDesc: feature.properties.areaDesc,
+        instruction: feature.properties.instruction,
+      })) || []
+    );
   } catch (error) {
-    console.error('Error fetching all active alerts:', error);
+    console.error("Error fetching all active alerts:", error);
     return [];
   }
 }
-

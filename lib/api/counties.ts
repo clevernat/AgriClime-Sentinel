@@ -23,33 +23,35 @@ export async function getAllCounties(): Promise<County[]> {
 
     if (data && data.length > 0) {
       // Calculate centroid for each county
-      const countiesWithCentroid = data.map((county: any) => {
-        let latitude = 39.8283; // Default: center of US
-        let longitude = -98.5795;
+      const countiesWithCentroid = data.map(
+        (county: Record<string, unknown>) => {
+          let latitude = 39.8283; // Default: center of US
+          let longitude = -98.5795;
 
-        if (county.geometry && county.geometry.coordinates) {
-          try {
-            const coords = county.geometry.coordinates[0];
-            if (Array.isArray(coords) && coords.length > 0) {
-              const lats = coords.map((c: number[]) => c[1]);
-              const lons = coords.map((c: number[]) => c[0]);
-              latitude =
-                lats.reduce((a: number, b: number) => a + b, 0) / lats.length;
-              longitude =
-                lons.reduce((a: number, b: number) => a + b, 0) / lons.length;
+          if (county.geometry && county.geometry.coordinates) {
+            try {
+              const coords = county.geometry.coordinates[0];
+              if (Array.isArray(coords) && coords.length > 0) {
+                const lats = coords.map((c: number[]) => c[1]);
+                const lons = coords.map((c: number[]) => c[0]);
+                latitude =
+                  lats.reduce((a: number, b: number) => a + b, 0) / lats.length;
+                longitude =
+                  lons.reduce((a: number, b: number) => a + b, 0) / lons.length;
+              }
+            } catch {
+              console.warn(
+                `Could not calculate centroid for county ${county.fips}`
+              );
             }
-          } catch (e) {
-            console.warn(
-              `Could not calculate centroid for county ${county.fips}`
-            );
           }
-        }
 
-        return {
-          ...county,
-          centroid: { latitude, longitude },
-        };
-      });
+          return {
+            ...county,
+            centroid: { latitude, longitude },
+          };
+        }
+      );
 
       allCounties.push(...countiesWithCentroid);
       hasMore = data.length === pageSize;
@@ -96,7 +98,7 @@ export async function getCountyByFips(fips: string): Promise<County | null> {
         longitude =
           lons.reduce((a: number, b: number) => a + b, 0) / lons.length;
       }
-    } catch (e) {
+    } catch {
       console.warn(`Could not calculate centroid for county ${fips}`);
     }
   }
