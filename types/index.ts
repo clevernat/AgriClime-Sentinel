@@ -6,6 +6,10 @@ export interface County {
   state: string;
   fips: string;
   geometry: GeoJSON.Geometry;
+  centroid?: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 export interface ClimateData {
@@ -47,7 +51,7 @@ export interface CropYieldRiskIndex {
   growth_stage: string;
 }
 
-export type CropType = 'corn' | 'wheat' | 'soybeans' | 'cotton' | 'rice';
+export type CropType = "corn" | "wheat" | "soybeans" | "cotton" | "rice";
 
 export interface HistoricalTrend {
   year: number;
@@ -70,12 +74,12 @@ export interface RegionalDashboardData {
   };
 }
 
-export type MapDataLayer = 
-  | 'drought' 
-  | 'soil_moisture' 
-  | 'precipitation_30day' 
-  | 'temperature_anomaly'
-  | 'crop_risk';
+export type MapDataLayer =
+  | "drought"
+  | "soil_moisture"
+  | "precipitation_30day"
+  | "temperature_anomaly"
+  | "crop_risk";
 
 export interface MapLayerConfig {
   id: MapDataLayer;
@@ -85,4 +89,3 @@ export interface MapLayerConfig {
   valueRange: [number, number];
   unit: string;
 }
-

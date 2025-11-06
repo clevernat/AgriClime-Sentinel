@@ -46,8 +46,9 @@ export default function AtmosphericScienceDashboard({
 
   const [weatherAlerts, setWeatherAlerts] = useState<any[]>([]);
   const [severeWeatherIndices, setSevereWeatherIndices] = useState<any>(null);
-  const [severeWeatherDataSource, setSevereWeatherDataSource] =
-    useState<string>("sample");
+  const [severeWeatherDataSource, setSevereWeatherDataSource] = useState<
+    string | null
+  >(null);
   const [airQuality, setAirQuality] = useState<any>(null);
   const [climateTrends, setClimateTrends] = useState<any>(null);
 
