@@ -120,36 +120,140 @@ export async function getCurrentDroughtStatus() {
 }
 
 /**
- * Get 30-day precipitation totals for all counties using pagination
+ * Get real 30-day precipitation totals for all counties from Open-Meteo API
+ * Uses county centroids and fetches actual precipitation data
  */
 export async function get30DayPrecipitation() {
-  const allData: Record<string, unknown>[] = [];
-  const pageSize = 1000;
-  let page = 0;
-  let hasMore = true;
+  try {
+    // Get all counties with their centroids
+    const { data: counties, error } = await supabase
+      .from("counties")
+      .select("fips, name, state, geometry");
 
-  while (hasMore) {
-    const { data, error } = await supabase
-      .from("precipitation_30day")
-      .select("*")
-      .range(page * pageSize, (page + 1) * pageSize - 1);
-
-    if (error) {
-      console.error("Error fetching 30-day precipitation:", error);
-      break;
+    if (error || !counties) {
+      console.error("Error fetching counties:", error);
+      return [];
     }
 
-    if (data && data.length > 0) {
-      allData.push(...data);
-      hasMore = data.length === pageSize;
-      page++;
-    } else {
-      hasMore = false;
+    // Calculate date range (last 30 days)
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 30);
+
+    const startDateStr = startDate.toISOString().split("T")[0];
+    const endDateStr = endDate.toISOString().split("T")[0];
+
+    console.log(
+      `Fetching real 30-day precipitation data for ${counties.length} counties from ${startDateStr} to ${endDateStr}`
+    );
+
+    // Process counties in batches to avoid overwhelming the API
+    const batchSize = 50;
+    const results: Array<{
+      fips: string;
+      total_precipitation: number;
+      latest_date: string;
+    }> = [];
+
+    for (let i = 0; i < counties.length; i += batchSize) {
+      const batch = counties.slice(i, i + batchSize);
+
+      // Fetch precipitation data for each county in parallel
+      const batchPromises = batch.map(async (county) => {
+        try {
+          // Calculate centroid from geometry
+          const geometry = county.geometry as
+            | { coordinates: number[][][] }
+            | undefined;
+          let latitude = 0;
+          let longitude = 0;
+
+          if (geometry && geometry.coordinates) {
+            const coords = geometry.coordinates[0];
+            if (Array.isArray(coords) && coords.length > 0) {
+              const lats = coords.map((c: number[]) => c[1]);
+              const lons = coords.map((c: number[]) => c[0]);
+              latitude =
+                lats.reduce((a: number, b: number) => a + b, 0) / lats.length;
+              longitude =
+                lons.reduce((a: number, b: number) => a + b, 0) / lons.length;
+            }
+          }
+
+          if (latitude === 0 || longitude === 0) {
+            return null;
+          }
+
+          // Fetch precipitation data from Open-Meteo
+          const response = await axios.get(
+            "https://archive-api.open-meteo.com/v1/archive",
+            {
+              params: {
+                latitude,
+                longitude,
+                start_date: startDateStr,
+                end_date: endDateStr,
+                daily: "precipitation_sum",
+                timezone: "America/Chicago",
+              },
+              timeout: 10000, // 10 second timeout
+            }
+          );
+
+          if (
+            response.data &&
+            response.data.daily &&
+            response.data.daily.precipitation_sum
+          ) {
+            const precipData = response.data.daily.precipitation_sum;
+            const totalPrecip = precipData.reduce(
+              (sum: number, val: number | null) => sum + (val || 0),
+              0
+            );
+
+            return {
+              fips: county.fips,
+              total_precipitation: Math.round(totalPrecip * 100) / 100, // Round to 2 decimals
+              latest_date: endDateStr,
+            };
+          }
+
+          return null;
+        } catch (error) {
+          console.error(
+            `Error fetching precipitation for county ${county.fips}:`,
+            error instanceof Error ? error.message : "Unknown error"
+          );
+          return null;
+        }
+      });
+
+      const batchResults = await Promise.all(batchPromises);
+      const validResults = batchResults.filter(
+        (r): r is NonNullable<typeof r> => r !== null
+      );
+      results.push(...validResults);
+
+      console.log(
+        `✓ Processed ${Math.min(i + batchSize, counties.length)}/${
+          counties.length
+        } counties`
+      );
+
+      // Add a small delay between batches to avoid rate limiting
+      if (i + batchSize < counties.length) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
     }
+
+    console.log(
+      `Successfully fetched real precipitation data for ${results.length} counties`
+    );
+    return results;
+  } catch (error) {
+    console.error("Error in get30DayPrecipitation:", error);
+    return [];
   }
-
-  console.log(`Fetched ${allData.length} precipitation records`);
-  return allData;
 }
 
 /**
