@@ -486,8 +486,8 @@ export default function AtmosphericScienceDashboard({
                   </div>
 
                   {/* Atmospheric Indices Chart */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                    <h4 className="text-xl font-bold text-gray-800 mb-4">
+                  <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-sm">
+                    <h4 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
                       Atmospheric Instability Indices
                     </h4>
                     <ResponsiveContainer width="100%" height={300}>
@@ -953,18 +953,21 @@ export default function AtmosphericScienceDashboard({
               ) : (
                 <>
                   {/* Trend Summary */}
-                  <div className="bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 rounded-xl p-8 shadow-lg">
-                    <h4 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                      <TrendingUp className="mr-3 text-blue-600" size={28} />
+                  <div className="bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 rounded-lg sm:rounded-xl p-4 sm:p-6 md:p-8 shadow-lg">
+                    <h4 className="text-base sm:text-lg md:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 flex items-center">
+                      <TrendingUp
+                        className="mr-2 sm:mr-3 text-blue-600"
+                        size={20}
+                      />
                       Temperature Trend Summary
                     </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-                      <div className="text-center p-5 bg-white rounded-xl shadow-sm border border-gray-100">
-                        <p className="text-sm font-semibold text-gray-600 mb-2">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6">
+                      <div className="text-center p-3 sm:p-4 md:p-5 bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
+                        <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 sm:mb-2">
                           Trend Direction
                         </p>
                         <p
-                          className={`text-4xl font-bold ${
+                          className={`text-2xl sm:text-3xl md:text-4xl font-bold ${
                             climateTrends.trend.trendDirection === "Increasing"
                               ? "text-red-600"
                               : climateTrends.trend.trendDirection ===
@@ -980,15 +983,15 @@ export default function AtmosphericScienceDashboard({
                             ? "↓"
                             : "→"}
                         </p>
-                        <p className="text-sm text-gray-700 mt-1 font-medium">
+                        <p className="text-xs sm:text-sm text-gray-700 mt-1 font-medium">
                           {climateTrends.trend.trendDirection}
                         </p>
                       </div>
-                      <div className="text-center p-5 bg-white rounded-xl shadow-sm border border-gray-100">
-                        <p className="text-sm font-semibold text-gray-600 mb-2">
+                      <div className="text-center p-3 sm:p-4 md:p-5 bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
+                        <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 sm:mb-2">
                           Rate of Change
                         </p>
-                        <p className="text-4xl font-bold text-purple-600">
+                        <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-600">
                           {climateTrends.trend.slope > 0 ? "+" : ""}
                           {climateTrends.trend.slope.toFixed(3)}
                         </p>
@@ -996,11 +999,11 @@ export default function AtmosphericScienceDashboard({
                           °C per year
                         </p>
                       </div>
-                      <div className="text-center p-5 bg-white rounded-xl shadow-sm border border-gray-100">
-                        <p className="text-sm font-semibold text-gray-600 mb-2">
+                      <div className="text-center p-3 sm:p-4 md:p-5 bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
+                        <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 sm:mb-2">
                           Total Change
                         </p>
-                        <p className="text-4xl font-bold text-orange-600">
+                        <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-orange-600">
                           {climateTrends.trend.percentChange > 0 ? "+" : ""}
                           {climateTrends.trend.percentChange.toFixed(2)}%
                         </p>
@@ -1009,12 +1012,12 @@ export default function AtmosphericScienceDashboard({
                           {climateTrends.period.endYear}
                         </p>
                       </div>
-                      <div className="text-center p-5 bg-white rounded-xl shadow-sm border border-gray-100">
-                        <p className="text-sm font-semibold text-gray-600 mb-2">
+                      <div className="text-center p-3 sm:p-4 md:p-5 bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
+                        <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 sm:mb-2">
                           Significance
                         </p>
                         <p
-                          className={`text-4xl font-bold ${
+                          className={`text-2xl sm:text-3xl md:text-4xl font-bold ${
                             climateTrends.trend.isSignificant
                               ? "text-green-600"
                               : "text-gray-600"
@@ -1033,9 +1036,9 @@ export default function AtmosphericScienceDashboard({
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-blue-600 rounded-lg p-5">
-                      <p className="text-sm text-blue-900 leading-relaxed">
-                        <strong className="text-base">
+                    <div className="bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-blue-600 rounded-lg p-3 sm:p-4 md:p-5">
+                      <p className="text-xs sm:text-sm text-blue-900 leading-relaxed">
+                        <strong className="text-sm sm:text-base">
                           📊 Interpretation:
                         </strong>
                         <br />
@@ -1046,8 +1049,8 @@ export default function AtmosphericScienceDashboard({
 
                   {/* Trend Chart */}
                   {climateTrends.data && climateTrends.data.length > 0 && (
-                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                      <h4 className="text-xl font-bold text-gray-800 mb-4">
+                    <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-sm">
+                      <h4 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
                         Temperature Trend ({climateTrends.period.startYear} -{" "}
                         {climateTrends.period.endYear})
                       </h4>
