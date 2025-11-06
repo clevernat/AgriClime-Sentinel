@@ -445,7 +445,56 @@ export async function exportChartAsPNG(
 }
 
 /**
- * Export atmospheric science data to PDF with professional formatting and colors
+ * Helper function to capture chart as image
+ */
+async function captureChartAsImage(chartId: string): Promise<string | null> {
+  try {
+    const element = document.getElementById(chartId);
+    if (!element) return null;
+
+    const svgElement = element.querySelector("svg");
+    if (!svgElement) return null;
+
+    const svgRect = svgElement.getBoundingClientRect();
+    const svgData = new XMLSerializer().serializeToString(svgElement);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = svgRect.width * 2;
+    canvas.height = svgRect.height * 2;
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) return null;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    return new Promise((resolve) => {
+      const img = new Image();
+      const svgBlob = new Blob([svgData], {
+        type: "image/svg+xml;charset=utf-8",
+      });
+      const url = URL.createObjectURL(svgBlob);
+
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL("image/png"));
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(null);
+      };
+
+      img.src = url;
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Export atmospheric science data to PDF with professional formatting and charts
  */
 export async function exportAtmosphericDataToPDF(
   countyName: string,
@@ -468,15 +517,32 @@ export async function exportAtmosphericDataToPDF(
     let yPos = 20;
     const leftMargin = 20;
     const pageWidth = 170;
+    const pageHeight = 277; // A4 height in mm
 
-    // Helper to add colored box
-    const addColorBox = (
-      color: [number, number, number],
-      height: number = 8
+    // Helper to check if new page is needed
+    const checkNewPage = (spaceNeeded: number = 30) => {
+      if (yPos + spaceNeeded > pageHeight - 20) {
+        pdf.addPage();
+        yPos = 20;
+        return true;
+      }
+      return false;
+    };
+
+    // Helper to add section header
+    const addSectionHeader = (
+      title: string,
+      color: [number, number, number]
     ) => {
+      checkNewPage(15);
       pdf.setFillColor(color[0], color[1], color[2]);
-      pdf.rect(leftMargin, yPos, pageWidth, height, "F");
-      yPos += height;
+      pdf.rect(leftMargin, yPos, pageWidth, 10, "F");
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.text(title, leftMargin + 3, yPos + 7);
+      yPos += 13;
     };
 
     // Helper to add text
@@ -496,72 +562,149 @@ export async function exportAtmosphericDataToPDF(
 
       const lines = pdf.splitTextToSize(text, pageWidth);
       lines.forEach((line: string) => {
-        if (yPos > 270) {
-          pdf.addPage();
-          yPos = 20;
-        }
+        checkNewPage();
         pdf.text(line, leftMargin, yPos);
         yPos += fontSize * 0.5;
       });
       yPos += 3;
     };
 
-    // Title with blue background
+    // Helper to add chart image
+    const addChartImage = async (
+      chartId: string,
+      chartTitle: string,
+      maxWidth: number = 170,
+      maxHeight: number = 100
+    ) => {
+      const imageData = await captureChartAsImage(chartId);
+      if (!imageData) {
+        addText(
+          `[Chart: ${chartTitle} - Not available]`,
+          9,
+          false,
+          [150, 150, 150]
+        );
+        return;
+      }
+
+      checkNewPage(maxHeight + 15);
+
+      // Add chart title
+      pdf.setFontSize(11);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(60, 60, 60);
+      pdf.text(chartTitle, leftMargin, yPos);
+      yPos += 7;
+
+      // Add image
+      pdf.addImage(imageData, "PNG", leftMargin, yPos, maxWidth, maxHeight);
+      yPos += maxHeight + 8;
+    };
+
+    // ========== TITLE PAGE ==========
     pdf.setFillColor(37, 99, 235); // Blue
-    pdf.rect(leftMargin, yPos, pageWidth, 12, "F");
+    pdf.rect(0, 0, 210, 40, "F");
 
     pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(18);
+    pdf.setFontSize(24);
     pdf.setFont("helvetica", "bold");
-    pdf.text("Atmospheric Science Report", leftMargin + 3, yPos + 8);
-    yPos += 15;
+    pdf.text("ATMOSPHERIC SCIENCE REPORT", 105, 20, { align: "center" });
 
-    // Location
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFontSize(14);
-    pdf.setFont("helvetica", "bold");
-    pdf.text(`${countyName}, ${state}`, leftMargin, yPos);
-    yPos += 7;
-
-    pdf.setFontSize(10);
+    pdf.setFontSize(16);
     pdf.setFont("helvetica", "normal");
-    pdf.text(`Generated: ${new Date().toLocaleString()}`, leftMargin, yPos);
+    pdf.text("Comprehensive Climate & Air Quality Analysis", 105, 30, {
+      align: "center",
+    });
+
+    yPos = 55;
+
+    // Location and metadata
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(`${countyName}, ${state}`, 105, yPos, { align: "center" });
     yPos += 10;
 
-    // Weather Alerts Section
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(80, 80, 80);
+    const coords = data.airQuality?.observations?.[0];
+    if (coords?.latitude && coords?.longitude) {
+      pdf.text(
+        `Coordinates: ${coords.latitude.toFixed(4)}°N, ${Math.abs(
+          coords.longitude
+        ).toFixed(4)}°W`,
+        105,
+        yPos,
+        { align: "center" }
+      );
+      yPos += 6;
+    }
+
+    pdf.text(`Report Generated: ${new Date().toLocaleString()}`, 105, yPos, {
+      align: "center",
+    });
+    yPos += 20;
+
+    // Executive Summary Box
+    pdf.setFillColor(240, 249, 255); // Light blue background
+    pdf.rect(leftMargin, yPos, pageWidth, 60, "F");
+    pdf.setDrawColor(37, 99, 235);
+    pdf.setLineWidth(0.5);
+    pdf.rect(leftMargin, yPos, pageWidth, 60, "S");
+
+    yPos += 8;
+    pdf.setTextColor(37, 99, 235);
+    pdf.setFontSize(13);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("EXECUTIVE SUMMARY", leftMargin + 3, yPos);
+    yPos += 8;
+
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+
+    const summaryText = `This report provides a comprehensive atmospheric science analysis for ${countyName}, ${state}. It includes real-time air quality measurements, severe weather risk indices, active weather alerts, and long-term climate trend analysis. The data is sourced from EPA AirNow, NOAA Weather Service, and Open-Meteo climate databases. This analysis is intended for agricultural planning, public health assessment, and climate risk evaluation.`;
+
+    const summaryLines = pdf.splitTextToSize(summaryText, pageWidth - 6);
+    summaryLines.forEach((line: string) => {
+      pdf.text(line, leftMargin + 3, yPos);
+      yPos += 5;
+    });
+
+    yPos += 15;
+
+    // ========== 1. WEATHER ALERTS SECTION ==========
     if (data.alerts && data.alerts.length > 0) {
-      pdf.setFillColor(239, 68, 68); // Red
-      pdf.rect(leftMargin, yPos, pageWidth, 8, "F");
+      addSectionHeader("1. ACTIVE WEATHER ALERTS", [239, 68, 68]);
 
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(13);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("⚠ Active Weather Alerts", leftMargin + 3, yPos + 5.5);
-      yPos += 11;
-
-      data.alerts.forEach((alert: any) => {
+      data.alerts.forEach((alert: any, index: number) => {
         pdf.setTextColor(0, 0, 0);
-        addText(`Event: ${alert.event || "N/A"}`, 11, true, [220, 38, 38]);
+        addText(
+          `Alert ${index + 1}: ${alert.event || "N/A"}`,
+          11,
+          true,
+          [220, 38, 38]
+        );
         addText(`Severity: ${alert.severity || "N/A"}`, 10);
         addText(`Headline: ${alert.headline || "N/A"}`, 10);
         if (alert.onset)
           addText(`Onset: ${new Date(alert.onset).toLocaleString()}`, 9);
         if (alert.expires)
           addText(`Expires: ${new Date(alert.expires).toLocaleString()}`, 9);
-        yPos += 3;
+        if (alert.description) {
+          addText("Description:", 10, true);
+          addText(alert.description, 9);
+        }
+        yPos += 5;
       });
     } else {
-      pdf.setFillColor(34, 197, 94); // Green
-      pdf.rect(leftMargin, yPos, pageWidth, 8, "F");
-
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(13);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("✓ No Active Weather Alerts", leftMargin + 3, yPos + 5.5);
-      yPos += 11;
+      addSectionHeader("1. WEATHER ALERTS", [34, 197, 94]);
+      addText("✓ No active weather alerts for this location.", 10);
+      yPos += 5;
     }
 
-    // Air Quality Section
+    // ========== 2. AIR QUALITY ANALYSIS ==========
     if (data.airQuality && data.airQuality.overall) {
       const aqi = data.airQuality.overall.aqi || 0;
       const category = data.airQuality.overall.category?.name || "Unknown";
@@ -572,17 +715,10 @@ export async function exportAtmosphericDataToPDF(
       else if (aqi > 100) aqiColor = [249, 115, 22]; // Orange
       else if (aqi > 50) aqiColor = [234, 179, 8]; // Yellow
 
-      pdf.setFillColor(aqiColor[0], aqiColor[1], aqiColor[2]);
-      pdf.rect(leftMargin, yPos, pageWidth, 8, "F");
-
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(13);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Air Quality Index", leftMargin + 3, yPos + 5.5);
-      yPos += 11;
+      addSectionHeader("2. AIR QUALITY INDEX (AQI)", aqiColor);
 
       pdf.setTextColor(0, 0, 0);
-      addText(`AQI: ${aqi} - ${category}`, 12, true);
+      addText(`Overall AQI: ${aqi} - ${category}`, 12, true);
 
       if (data.airQuality.overall.dominantPollutant) {
         addText(
@@ -591,93 +727,160 @@ export async function exportAtmosphericDataToPDF(
         );
       }
 
+      // Individual pollutants
+      if (
+        data.airQuality.observations &&
+        data.airQuality.observations.length > 0
+      ) {
+        yPos += 3;
+        addText("Individual Pollutant Measurements:", 11, true);
+        data.airQuality.observations.forEach((obs: any) => {
+          const pollutantName = obs.parameterName || "Unknown";
+          const pollutantAQI = obs.aqi || "N/A";
+          const pollutantCategory = obs.category?.name || "N/A";
+          addText(
+            `• ${pollutantName}: ${pollutantAQI} (${pollutantCategory})`,
+            9
+          );
+        });
+      }
+
+      // Health recommendations
       if (data.airQuality.recommendations) {
+        yPos += 5;
         addText("Health Recommendations:", 11, true);
         const recs = data.airQuality.recommendations;
-        if (recs.general) addText(`• General: ${recs.general}`, 9);
+        if (recs.general) addText(`• General Public: ${recs.general}`, 9);
         if (recs.sensitiveGroups)
           addText(`• Sensitive Groups: ${recs.sensitiveGroups}`, 9);
-        if (recs.activities) addText(`• Activities: ${recs.activities}`, 9);
+        if (recs.activities)
+          addText(`• Outdoor Activities: ${recs.activities}`, 9);
       }
-      yPos += 5;
+
+      // Add pollutant comparison chart
+      yPos += 8;
+      await addChartImage(
+        "pollutant-comparison-chart",
+        "Figure 1: Pollutant Comparison Chart",
+        170,
+        90
+      );
     } else {
-      // Show "No Data Available" section
-      pdf.setFillColor(156, 163, 175); // Gray
-      pdf.rect(leftMargin, yPos, pageWidth, 8, "F");
-
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(13);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Air Quality Index", leftMargin + 3, yPos + 5.5);
-      yPos += 11;
-
-      pdf.setTextColor(0, 0, 0);
-      addText("No air quality data available for this location", 10);
+      addSectionHeader("2. AIR QUALITY INDEX (AQI)", [156, 163, 175]);
+      addText("No air quality data available for this location.", 10);
       yPos += 5;
     }
 
-    // Severe Weather Indices
+    // ========== 3. SEVERE WEATHER RISK INDICES ==========
     if (data.severeWeather) {
-      pdf.setFillColor(168, 85, 247); // Purple
-      pdf.rect(leftMargin, yPos, pageWidth, 8, "F");
-
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(13);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Severe Weather Indices", leftMargin + 3, yPos + 5.5);
-      yPos += 11;
+      addSectionHeader("3. SEVERE WEATHER RISK INDICES", [168, 85, 247]);
 
       pdf.setTextColor(0, 0, 0);
       const indices = data.severeWeather.indices || data.severeWeather;
 
+      addText(
+        "Atmospheric instability indices measure the potential for severe weather development, including thunderstorms, tornadoes, and heavy precipitation.",
+        9
+      );
+      yPos += 3;
+
       if (indices.cape !== undefined) {
         addText(
-          `CAPE: ${indices.cape.toFixed(0)} J/kg - ${
-            indices.cape_category || "N/A"
-          }`,
-          10
+          `CAPE (Convective Available Potential Energy): ${indices.cape.toFixed(
+            0
+          )} J/kg`,
+          10,
+          true
         );
+        addText(
+          `Category: ${indices.cape_category || "N/A"} - ${
+            indices.cape < 1000
+              ? "Low instability"
+              : indices.cape < 2500
+              ? "Moderate instability"
+              : "High instability"
+          }`,
+          9
+        );
+        yPos += 2;
       }
+
       if (indices.k_index !== undefined) {
-        addText(`K-Index: ${indices.k_index.toFixed(1)}`, 10);
+        addText(`K-Index: ${indices.k_index.toFixed(1)}°C`, 10, true);
+        addText(
+          `Interpretation: ${
+            indices.k_index < 20
+              ? "Thunderstorms unlikely"
+              : indices.k_index < 30
+              ? "Isolated thunderstorms possible"
+              : "Widespread thunderstorms likely"
+          }`,
+          9
+        );
+        yPos += 2;
       }
+
       if (indices.lifted_index !== undefined) {
-        addText(`Lifted Index: ${indices.lifted_index.toFixed(1)}`, 10);
+        addText(`Lifted Index: ${indices.lifted_index.toFixed(1)}°C`, 10, true);
+        addText(
+          `Interpretation: ${
+            indices.lifted_index > 2
+              ? "Stable atmosphere"
+              : indices.lifted_index > -3
+              ? "Marginally unstable"
+              : "Very unstable"
+          }`,
+          9
+        );
+        yPos += 2;
       }
+
       if (indices.total_totals !== undefined) {
-        addText(`Total Totals Index: ${indices.total_totals.toFixed(1)}`, 10);
+        addText(
+          `Total Totals Index: ${indices.total_totals.toFixed(1)}`,
+          10,
+          true
+        );
+        addText(
+          `Interpretation: ${
+            indices.total_totals < 44
+              ? "Thunderstorms unlikely"
+              : indices.total_totals < 50
+              ? "Isolated thunderstorms"
+              : "Severe thunderstorms possible"
+          }`,
+          9
+        );
+        yPos += 2;
       }
-      yPos += 5;
+
+      // Add atmospheric indices chart
+      yPos += 8;
+      await addChartImage(
+        "atmospheric-indices-chart",
+        "Figure 2: Atmospheric Instability Indices",
+        170,
+        90
+      );
     } else {
-      // Show "No Data Available" section
-      pdf.setFillColor(156, 163, 175); // Gray
-      pdf.rect(leftMargin, yPos, pageWidth, 8, "F");
-
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(13);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Severe Weather Indices", leftMargin + 3, yPos + 5.5);
-      yPos += 11;
-
-      pdf.setTextColor(0, 0, 0);
-      addText("No severe weather data available for this location", 10);
+      addSectionHeader("3. SEVERE WEATHER RISK INDICES", [156, 163, 175]);
+      addText("No severe weather data available for this location.", 10);
       yPos += 5;
     }
 
-    // Climate Trends Section
+    // ========== 4. CLIMATE TRENDS ANALYSIS ==========
     if (data.climateTrends && data.climateTrends.trend) {
-      pdf.setFillColor(14, 165, 233); // Sky blue
-      pdf.rect(leftMargin, yPos, pageWidth, 8, "F");
-
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(13);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Climate Trends", leftMargin + 3, yPos + 5.5);
-      yPos += 11;
+      addSectionHeader("4. LONG-TERM CLIMATE TRENDS", [14, 165, 233]);
 
       pdf.setTextColor(0, 0, 0);
       const trend = data.climateTrends.trend;
       const period = data.climateTrends.period;
+
+      addText(
+        `This section analyzes historical temperature trends to identify long-term climate patterns and their potential impacts on agriculture and public health.`,
+        9
+      );
+      yPos += 3;
 
       addText(
         `Analysis Period: ${period.startYear} - ${period.endYear} (${period.yearsAnalyzed} years)`,
@@ -686,7 +889,7 @@ export async function exportAtmosphericDataToPDF(
       );
       addText(`Trend Direction: ${trend.trendDirection}`, 10);
       addText(
-        `Change: ${
+        `Temperature Change: ${
           trend.percentChange > 0 ? "+" : ""
         }${trend.percentChange.toFixed(1)}%`,
         10
@@ -694,41 +897,72 @@ export async function exportAtmosphericDataToPDF(
       addText(
         `Statistical Significance: ${
           trend.isSignificant ? "Yes" : "No"
-        } (p=${trend.pValue.toFixed(3)})`,
+        } (p-value: ${trend.pValue.toFixed(3)})`,
         9
       );
       addText(`Interpretation: ${trend.interpretation}`, 9);
-      yPos += 5;
+
+      // Add temperature trend chart
+      yPos += 8;
+      await addChartImage(
+        "temperature-trend-chart",
+        "Figure 3: Historical Temperature Trend",
+        170,
+        90
+      );
     } else {
-      // Show "No Data Available" section
-      pdf.setFillColor(156, 163, 175); // Gray
-      pdf.rect(leftMargin, yPos, pageWidth, 8, "F");
-
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(13);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Climate Trends", leftMargin + 3, yPos + 5.5);
-      yPos += 11;
-
-      pdf.setTextColor(0, 0, 0);
-      addText("No climate trend data available for this location", 10);
+      addSectionHeader("4. LONG-TERM CLIMATE TRENDS", [156, 163, 175]);
+      addText("No climate trend data available for this location.", 10);
       yPos += 5;
     }
 
-    // Footer
-    yPos = 280;
-    pdf.setFontSize(8);
-    pdf.setTextColor(100, 100, 100);
-    pdf.text(
-      "AgriClime Sentinel - Atmospheric Science Dashboard",
-      leftMargin,
-      yPos
+    // ========== CONCLUSION ==========
+    checkNewPage(40);
+    addSectionHeader("5. CONCLUSION & RECOMMENDATIONS", [37, 99, 235]);
+
+    const conclusionText = `This comprehensive atmospheric analysis provides critical insights for ${countyName}, ${state}. The data presented includes real-time air quality measurements, severe weather risk assessment, and long-term climate trends. Stakeholders should use this information for agricultural planning, public health advisories, and climate adaptation strategies. Regular monitoring of these atmospheric parameters is recommended to ensure timely response to changing environmental conditions.`;
+
+    const conclusionLines = pdf.splitTextToSize(conclusionText, pageWidth);
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    conclusionLines.forEach((line: string) => {
+      checkNewPage();
+      pdf.text(line, leftMargin, yPos);
+      yPos += 5;
+    });
+
+    yPos += 10;
+    addText("Data Sources:", 11, true);
+    addText("• EPA AirNow API - Real-time air quality measurements", 9);
+    addText(
+      "• NOAA National Weather Service - Weather alerts and forecasts",
+      9
     );
-    pdf.text(
-      "https://github.com/clevernat/AgriClime-Sentinel",
-      leftMargin,
-      yPos + 4
-    );
+    addText("• Open-Meteo API - Climate data and atmospheric indices", 9);
+
+    // Footer on every page
+    const totalPages = pdf.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(8);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(
+        "AgriClime Sentinel - Atmospheric Science Dashboard",
+        leftMargin,
+        pageHeight - 10
+      );
+      pdf.text(
+        `Page ${i} of ${totalPages}`,
+        pageWidth + leftMargin - 20,
+        pageHeight - 10
+      );
+      pdf.text(
+        "https://github.com/clevernat/AgriClime-Sentinel",
+        leftMargin,
+        pageHeight - 6
+      );
+    }
 
     pdf.save(filename);
   } catch (error) {
