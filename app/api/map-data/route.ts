@@ -4,17 +4,41 @@ import {
   get30DayPrecipitation,
   getAllTemperatureAnomalies,
   getAllCropRiskIndices,
+  getAllSoilMoisture,
 } from "@/lib/api/climate-data";
 import { MapDataLayer } from "@/types";
 
-// In-memory cache for precipitation data
-// Cache expires after 6 hours (precipitation data doesn't change frequently)
+// In-memory caches for different data layers
+// Cache expires after specified duration (data doesn't change frequently)
 let precipitationCache: {
   data: unknown[];
   timestamp: number;
 } | null = null;
 
+let droughtCache: {
+  data: unknown[];
+  timestamp: number;
+} | null = null;
+
+let temperatureCache: {
+  data: unknown[];
+  timestamp: number;
+} | null = null;
+
+let soilMoistureCache: {
+  data: unknown[];
+  timestamp: number;
+} | null = null;
+
+let cropRiskCache: {
+  data: unknown[];
+  timestamp: number;
+  cropType: string;
+} | null = null;
+
 const CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+const TEMP_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for temperature anomalies
+const CROP_CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours for crop risk
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -25,22 +49,30 @@ export async function GET(request: NextRequest) {
 
   try {
     let data;
+    const now = Date.now();
 
     switch (layer) {
       case "drought":
-        data = await getCurrentDroughtStatus();
+        // Check cache first
+        if (droughtCache && now - droughtCache.timestamp < CACHE_DURATION) {
+          data = droughtCache.data;
+        } else {
+          // Fetch fresh data
+          data = await getCurrentDroughtStatus();
+          // Update cache
+          droughtCache = {
+            data: data as unknown[],
+            timestamp: now,
+          };
+        }
         break;
 
       case "precipitation_30day":
         // Check cache first
-        const now = Date.now();
         if (
           precipitationCache &&
           now - precipitationCache.timestamp < CACHE_DURATION
         ) {
-          const cacheAge = Math.round(
-            (now - precipitationCache.timestamp) / 1000 / 60
-          );
           data = precipitationCache.data;
         } else {
           // Fetch fresh data
@@ -54,7 +86,21 @@ export async function GET(request: NextRequest) {
         break;
 
       case "temperature_anomaly":
-        data = await getAllTemperatureAnomalies(date);
+        // Check cache first
+        if (
+          temperatureCache &&
+          now - temperatureCache.timestamp < TEMP_CACHE_DURATION
+        ) {
+          data = temperatureCache.data;
+        } else {
+          // Fetch fresh data
+          data = await getAllTemperatureAnomalies(date);
+          // Update cache
+          temperatureCache = {
+            data: data as unknown[],
+            timestamp: now,
+          };
+        }
         break;
 
       case "crop_risk":
@@ -64,12 +110,41 @@ export async function GET(request: NextRequest) {
             { status: 400 }
           );
         }
-        data = await getAllCropRiskIndices(cropType, date);
+        // Check cache first (also check if crop type matches)
+        if (
+          cropRiskCache &&
+          cropRiskCache.cropType === cropType &&
+          now - cropRiskCache.timestamp < CROP_CACHE_DURATION
+        ) {
+          data = cropRiskCache.data;
+        } else {
+          // Fetch fresh data
+          data = await getAllCropRiskIndices(cropType, date);
+          // Update cache
+          cropRiskCache = {
+            data: data as unknown[],
+            timestamp: now,
+            cropType,
+          };
+        }
         break;
 
       case "soil_moisture":
-        // Get current climate data with soil moisture
-        data = await getCurrentDroughtStatus();
+        // Check cache first
+        if (
+          soilMoistureCache &&
+          now - soilMoistureCache.timestamp < CACHE_DURATION
+        ) {
+          data = soilMoistureCache.data;
+        } else {
+          // Fetch fresh data
+          data = await getAllSoilMoisture();
+          // Update cache
+          soilMoistureCache = {
+            data: data as unknown[],
+            timestamp: now,
+          };
+        }
         break;
 
       default:
