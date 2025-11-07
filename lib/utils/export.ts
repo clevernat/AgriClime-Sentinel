@@ -1067,12 +1067,16 @@ async function forceRenderAllCharts(): Promise<() => void> {
       // Store original state
       originalStates.push({ element, display: originalDisplay });
 
-      // Force visible if hidden (check both inline style and computed style)
+      // ALWAYS force visible for ALL tabs (not just hidden ones)
+      // This ensures charts in all tabs can be captured
+      element.style.setProperty('display', 'block', 'important');
+      element.style.setProperty('visibility', 'visible', 'important');
+      element.style.setProperty('opacity', '1', 'important');
+
       if (originalDisplay === 'none' || computedStyle.display === 'none') {
-        element.style.display = 'block';
-        element.style.visibility = 'visible';
-        element.style.opacity = '1';
-        console.log(`[Chart Rendering] Made tab ${index + 1} visible (was hidden)`);
+        console.log(`[Chart Rendering] ✅ Made tab ${index + 1} visible (was ${computedStyle.display})`);
+      } else {
+        console.log(`[Chart Rendering] ℹ️ Tab ${index + 1} already visible, ensuring it stays visible`);
       }
     });
   } else {
@@ -1092,18 +1096,19 @@ async function forceRenderAllCharts(): Promise<() => void> {
       const element = document.getElementById(chartId);
       if (element) {
         console.log(`[Chart Rendering] Found chart: ${chartId}`);
-        // Find parent tab container
+        // Find parent tab container and make entire chain visible
         let parent = element.parentElement;
         let depth = 0;
         while (parent && parent !== document.body && depth < 10) {
           const computedStyle = window.getComputedStyle(parent);
-          if (computedStyle.display === 'none') {
+          if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
             const originalDisplay = (parent as HTMLElement).style.display;
             originalStates.push({ element: parent as HTMLElement, display: originalDisplay });
-            (parent as HTMLElement).style.display = 'block';
-            (parent as HTMLElement).style.visibility = 'visible';
-            (parent as HTMLElement).style.opacity = '1';
-            console.log(`[Chart Rendering] Made visible parent (depth ${depth}) of: ${chartId}`);
+            // Use !important to override inline styles
+            (parent as HTMLElement).style.setProperty('display', 'block', 'important');
+            (parent as HTMLElement).style.setProperty('visibility', 'visible', 'important');
+            (parent as HTMLElement).style.setProperty('opacity', '1', 'important');
+            console.log(`[Chart Rendering] ✅ Made visible parent (depth ${depth}) of: ${chartId}`);
           }
           parent = parent.parentElement;
           depth++;
@@ -1116,7 +1121,8 @@ async function forceRenderAllCharts(): Promise<() => void> {
 
   // Wait for charts to render (Recharts needs time to render SVGs)
   console.log("[Chart Rendering] Waiting for charts to fully render...");
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  // Increased wait time to ensure Recharts SVGs and Canvas elements fully render
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   // Return cleanup function
   return () => {
@@ -1164,11 +1170,11 @@ export async function exportAtmosphericDataToPDF(
     console.log("📊 Step 1: Force rendering all charts...");
     restoreVisibility = await forceRenderAllCharts();
 
-    // Additional wait for complex charts (Skew-T canvas)
+    // Additional wait for complex charts (Skew-T canvas and Recharts SVGs)
     console.log("⏳ Step 2: Waiting for complex charts to render...");
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    console.log("✅ Step 3: Charts should now be visible and ready for capture\n");
+    console.log("✅ Step 3: All tabs are now visible, charts should be ready for capture\n");
 
     const pdf = new jsPDF({
       orientation: "portrait",
@@ -1702,14 +1708,18 @@ export async function exportAtmosphericDataToPDF(
         }
       }
 
-      // Add pollutant comparison chart
-      yPos += 10;
-      await addChartImage(
-        "pollutant-comparison-chart",
-        "Figure 1: Pollutant Comparison Chart",
-        160,
-        85
-      );
+      // Add pollutant comparison chart (only if observations exist)
+      if (data.airQuality.observations && data.airQuality.observations.length > 0) {
+        yPos += 10;
+        await addChartImage(
+          "pollutant-comparison-chart",
+          "Figure 1: Pollutant Comparison Chart",
+          160,
+          85
+        );
+      } else {
+        console.log("[PDF] ⚠️ Skipping pollutant chart - no observations data available");
+      }
     } else {
       addSectionHeader("SECTION 2: AIR QUALITY INDEX (AQI) ANALYSIS", [156, 163, 175], 1);
       addText("Air quality data is currently unavailable for this location. This may be due to the absence of monitoring stations in the immediate vicinity.", 11, false, [60, 60, 60], 1.5);
@@ -2059,14 +2069,18 @@ export async function exportAtmosphericDataToPDF(
       addText(trend.interpretation, 11, false, [40, 40, 40], 1.5);
       yPos += 5;
 
-      // Add temperature trend chart
-      yPos += 8;
-      await addChartImage(
-        "temperature-trend-chart",
-        "Figure 3: Historical Temperature Trend Analysis with Linear Regression",
-        160,
-        85
-      );
+      // Add temperature trend chart (only if data exists)
+      if (data.climateTrends.data && data.climateTrends.data.length > 0) {
+        yPos += 8;
+        await addChartImage(
+          "temperature-trend-chart",
+          "Figure 3: Historical Temperature Trend Analysis with Linear Regression",
+          160,
+          85
+        );
+      } else {
+        console.log("[PDF] ⚠️ Skipping temperature trend chart - no climate data available");
+      }
     } else {
       addSectionHeader("SECTION 4: LONG-TERM CLIMATE TREND ANALYSIS", [156, 163, 175], 1);
       addText("Climate trend data is currently unavailable for this location. Historical temperature records may be incomplete or unavailable for this geographic area.", 11, false, [60, 60, 60], 1.5);
