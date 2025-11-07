@@ -16,19 +16,19 @@
 
 ### Interactive Map View
 
-<!-- TODO: Add screenshot of map with data layers -->
+![Interactive Map View](screenshots/map-view.png)
 
 _Interactive map showing 3,221 US counties with climate data layers_
 
 ### Atmospheric Science Dashboard
 
-<!-- TODO: Add screenshot of dashboard with all 4 tabs -->
+![Atmospheric Science Dashboard](screenshots/dashboard-overview.png)
 
 _Real-time weather alerts, severe weather indices, air quality, and climate trends_
 
 ### Climate Trends Analysis
 
-<!-- TODO: Add screenshot of climate trends tab -->
+![Climate Trends Analysis](screenshots/climate-trends.png)
 
 _55 years of historical temperature data with statistical analysis_
 

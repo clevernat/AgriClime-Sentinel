@@ -866,6 +866,38 @@ export async function exportChartAsPNG(
 /**
  * Helper function to capture chart as image using html2canvas
  */
+
+
+/**
+ * Inline all computed styles into SVG elements
+ * This ensures the SVG renders correctly when converted to an image
+ */
+function inlineStyles(svg: SVGElement): void {
+  const elements = svg.querySelectorAll('*');
+
+  elements.forEach((element) => {
+    const computedStyle = window.getComputedStyle(element);
+    const htmlElement = element as HTMLElement;
+
+    // Copy all computed styles
+    for (let i = 0; i < computedStyle.length; i++) {
+      const property = computedStyle[i];
+      const value = computedStyle.getPropertyValue(property);
+
+      // Skip LAB colors - convert them
+      if (value && (value.includes('lab(') || value.includes('oklch(') || value.includes('lch('))) {
+        // For LAB colors, use the computed color which browser has already converted
+        const computedColor = computedStyle.color || computedStyle.fill || computedStyle.stroke;
+        if (computedColor && computedColor.startsWith('rgb')) {
+          htmlElement.style.setProperty(property, computedColor);
+        }
+      } else if (value) {
+        htmlElement.style.setProperty(property, value);
+      }
+    }
+  });
+}
+
 async function captureChartAsImage(chartId: string): Promise<string | null> {
   try {
     console.log(`[Chart Capture] Attempting to capture: ${chartId}`);
@@ -891,27 +923,81 @@ async function captureChartAsImage(chartId: string): Promise<string | null> {
       return null;
     }
 
-    console.log(`[Chart Capture] Capturing with html2canvas...`);
+    // Find SVG element
+    const svgElement = element.querySelector('svg');
+    if (!svgElement) {
+      console.error(`[Chart Capture] ❌ No SVG found in ${chartId}`);
+      return null;
+    }
 
-    // Use html2canvas to capture the entire chart container
-    const canvas = await html2canvas(element, {
-      backgroundColor: "#ffffff",
-      scale: 2, // Higher quality
-      logging: true, // Enable logging to see what's happening
-      useCORS: true,
-      allowTaint: true,
+    console.log(`[Chart Capture] SVG found, processing...`);
+
+    // Clone the SVG
+    const svgClone = svgElement.cloneNode(true) as SVGElement;
+
+    // Get dimensions
+    const svgRect = svgElement.getBoundingClientRect();
+    const width = svgRect.width || 800;
+    const height = svgRect.height || 400;
+
+    // Set explicit dimensions
+    svgClone.setAttribute('width', width.toString());
+    svgClone.setAttribute('height', height.toString());
+    svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+    // Inline all styles
+    inlineStyles(svgClone);
+
+    // Serialize SVG
+    const svgString = new XMLSerializer().serializeToString(svgClone);
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    // Create canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = width * 2; // 2x for quality
+    canvas.height = height * 2;
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      console.error(`[Chart Capture] ❌ Failed to get canvas context`);
+      URL.revokeObjectURL(url);
+      return null;
+    }
+
+    // Set white background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.scale(2, 2);
+
+    // Load and draw image
+    return new Promise<string | null>((resolve) => {
+      const img = new Image();
+
+      img.onload = () => {
+        try {
+          ctx.drawImage(img, 0, 0, width, height);
+          URL.revokeObjectURL(url);
+          const dataUrl = canvas.toDataURL('image/png');
+          console.log(
+            `[Chart Capture] ✅ Successfully captured ${chartId}, data URL length: ${dataUrl.length}`
+          );
+          resolve(dataUrl);
+        } catch (error) {
+          console.error(`[Chart Capture] ❌ Error drawing image:`, error);
+          URL.revokeObjectURL(url);
+          resolve(null);
+        }
+      };
+
+      img.onerror = (error) => {
+        console.error(`[Chart Capture] ❌ Error loading SVG:`, error);
+        URL.revokeObjectURL(url);
+        resolve(null);
+      };
+
+      img.src = url;
     });
-
-    console.log(`[Chart Capture] Canvas created:`, {
-      width: canvas.width,
-      height: canvas.height,
-    });
-
-    const dataUrl = canvas.toDataURL("image/png");
-    console.log(
-      `[Chart Capture] ✅ Successfully captured ${chartId}, data URL length: ${dataUrl.length}`
-    );
-    return dataUrl;
   } catch (error) {
     console.error(`[Chart Capture] ❌ Error capturing ${chartId}:`, error);
     return null;
