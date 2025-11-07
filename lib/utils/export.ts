@@ -110,14 +110,34 @@ async function forceRenderAgriculturalCharts(): Promise<() => void> {
   const dashboardContent = document.getElementById("regional-dashboard-content");
 
   if (!dashboardContent) {
-    console.warn("[Agricultural Chart Rendering] Dashboard content not found");
+    console.warn("[Agricultural Chart Rendering] ❌ Dashboard content not found");
     return () => {}; // Return no-op cleanup function
   }
 
-  // Wait for Recharts to render all SVG charts
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  console.log("[Agricultural Chart Rendering] Dashboard content found");
 
-  console.log("[Agricultural Chart Rendering] ✅ All charts rendered");
+  // Check if charts exist
+  const chart1 = document.getElementById("historical-trends-chart");
+  const chart2 = document.getElementById("extreme-heat-chart");
+
+  console.log("[Agricultural Chart Rendering] Chart 1 (historical-trends-chart):", chart1 ? "✅ Found" : "❌ Not found");
+  console.log("[Agricultural Chart Rendering] Chart 2 (extreme-heat-chart):", chart2 ? "✅ Found" : "❌ Not found");
+
+  if (chart1) {
+    const rect1 = chart1.getBoundingClientRect();
+    console.log("[Agricultural Chart Rendering] Chart 1 dimensions:", { width: rect1.width, height: rect1.height });
+  }
+
+  if (chart2) {
+    const rect2 = chart2.getBoundingClientRect();
+    console.log("[Agricultural Chart Rendering] Chart 2 dimensions:", { width: rect2.width, height: rect2.height });
+  }
+
+  // Wait longer for Recharts to render all SVG charts
+  console.log("[Agricultural Chart Rendering] Waiting 3 seconds for charts to fully render...");
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  console.log("[Agricultural Chart Rendering] ✅ All charts should be rendered now");
 
   // Return cleanup function (no-op for agricultural dashboard since no tabs)
   return () => {
