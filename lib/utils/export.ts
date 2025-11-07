@@ -1789,42 +1789,48 @@ export async function exportAtmosphericDataToPDF(
 
       addSectionHeader("3.2 K-Index", [168, 85, 247], 2);
 
-      if (indices.k_index !== undefined) {
-        const kInterpretation = indices.k_index < 20
+      // Check both camelCase and snake_case for compatibility
+      const kIndexValue = indices.kIndex ?? indices.k_index;
+      if (kIndexValue !== undefined) {
+        const kInterpretation = kIndexValue < 20
           ? "Thunderstorm development is unlikely under current atmospheric conditions."
-          : indices.k_index < 30
+          : kIndexValue < 30
           ? "Isolated thunderstorms are possible, particularly in areas of enhanced lift."
           : "Widespread thunderstorm activity is likely. Monitor for potential severe weather.";
 
-        addText(`Measured Value: ${indices.k_index.toFixed(1)}°C`, 11, true, [40, 40, 40], 1.4);
+        addText(`Measured Value: ${kIndexValue.toFixed(1)}`, 11, true, [40, 40, 40], 1.4);
         addText(`Interpretation: ${kInterpretation}`, 10, false, [60, 60, 60], 1.5);
         yPos += 5;
       }
 
       addSectionHeader("3.3 Lifted Index (LI)", [168, 85, 247], 2);
 
-      if (indices.lifted_index !== undefined) {
-        const liInterpretation = indices.lifted_index > 2
+      // Check both camelCase and snake_case for compatibility
+      const liftedIndexValue = indices.liftedIndex ?? indices.lifted_index;
+      if (liftedIndexValue !== undefined) {
+        const liInterpretation = liftedIndexValue > 2
           ? "Stable atmospheric conditions. Convection is suppressed."
-          : indices.lifted_index > -3
+          : liftedIndexValue > -3
           ? "Marginally unstable atmosphere. Weak thunderstorms possible with sufficient forcing."
           : "Very unstable atmosphere. Strong to severe thunderstorms likely.";
 
-        addText(`Measured Value: ${indices.lifted_index.toFixed(1)}°C`, 11, true, [40, 40, 40], 1.4);
+        addText(`Measured Value: ${liftedIndexValue.toFixed(1)}°C`, 11, true, [40, 40, 40], 1.4);
         addText(`Interpretation: ${liInterpretation}`, 10, false, [60, 60, 60], 1.5);
         yPos += 5;
       }
 
       addSectionHeader("3.4 Total Totals Index (TT)", [168, 85, 247], 2);
 
-      if (indices.total_totals !== undefined) {
-        const ttInterpretation = indices.total_totals < 44
+      // Check both camelCase and snake_case for compatibility
+      const totalTotalsValue = indices.totalTotals ?? indices.total_totals;
+      if (totalTotalsValue !== undefined) {
+        const ttInterpretation = totalTotalsValue < 44
           ? "Thunderstorm development is not expected."
-          : indices.total_totals < 50
+          : totalTotalsValue < 50
           ? "Isolated thunderstorms may develop, particularly during peak heating."
           : "Severe thunderstorms are possible. Conditions support organized convection.";
 
-        addText(`Measured Value: ${indices.total_totals.toFixed(1)}`, 11, true, [40, 40, 40], 1.4);
+        addText(`Measured Value: ${totalTotalsValue.toFixed(1)}`, 11, true, [40, 40, 40], 1.4);
         addText(`Interpretation: ${ttInterpretation}`, 10, false, [60, 60, 60], 1.5);
         yPos += 5;
       }
