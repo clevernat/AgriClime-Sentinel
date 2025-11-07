@@ -80,11 +80,31 @@ const screenshots: ScreenshotConfig[] = [
       await page.waitForTimeout(3000);
 
       console.log('  🖱️  Clicking on a county...');
-      // Click somewhere in the middle of the map (should hit a county)
-      await page.click('.leaflet-container', { position: { x: 400, y: 300 } });
+      // Try to click on a county polygon (SVG path element)
+      try {
+        const countyPath = await page.$('.leaflet-interactive');
+        if (countyPath) {
+          await countyPath.click();
+          console.log('  ✅ Clicked on county polygon');
+        } else {
+          // Fallback to clicking at a position
+          await page.click('.leaflet-container', { position: { x: 400, y: 300 } });
+          console.log('  ✅ Clicked on map at position');
+        }
+      } catch (e) {
+        console.log('  ⚠️  Error clicking county:', e);
+      }
 
-      console.log('  ⏳ Waiting for dashboard to load...');
-      await page.waitForTimeout(5000);
+      console.log('  ⏳ Waiting for dashboard modal to appear...');
+      // Wait for the dashboard modal to appear
+      try {
+        await page.waitForSelector('text=Atmospheric Science Dashboard', { timeout: 10000 });
+        console.log('  ✅ Dashboard modal appeared');
+      } catch (e) {
+        console.log('  ⚠️  Dashboard modal did not appear');
+      }
+
+      await page.waitForTimeout(3000);
 
       console.log('  📸 Capturing dashboard overview...');
     }
@@ -102,25 +122,56 @@ const screenshots: ScreenshotConfig[] = [
       await page.waitForTimeout(3000);
 
       console.log('  🖱️  Clicking on a county...');
-      await page.click('.leaflet-container', { position: { x: 400, y: 300 } });
-
-      console.log('  ⏳ Waiting for dashboard to load...');
-      await page.waitForTimeout(5000);
-
-      console.log('  🔄 Switching to Climate Trends tab...');
+      // Try to click on a county polygon (SVG path element)
       try {
-        // Look for Climate Trends tab button
+        const countyPath = await page.$('.leaflet-interactive');
+        if (countyPath) {
+          await countyPath.click();
+          console.log('  ✅ Clicked on county polygon');
+        } else {
+          // Fallback to clicking at a position
+          await page.click('.leaflet-container', { position: { x: 400, y: 300 } });
+          console.log('  ✅ Clicked on map at position');
+        }
+      } catch (e) {
+        console.log('  ⚠️  Error clicking county:', e);
+      }
+
+      console.log('  ⏳ Waiting for dashboard modal to appear...');
+      // Wait for the dashboard modal to appear - look for the header text
+      try {
+        await page.waitForSelector('text=Atmospheric Science Dashboard', { timeout: 10000 });
+        console.log('  ✅ Dashboard modal appeared');
+      } catch (e) {
+        console.log('  ⚠️  Dashboard modal did not appear');
+      }
+
+      await page.waitForTimeout(3000);
+
+      console.log('  🔄 Switching to Trends tab...');
+      try {
+        // Look for Trends tab button - the text is just "Trends"
         const buttons = await page.$$('button');
+        console.log(`  🔍 Found ${buttons.length} buttons on page`);
+
+        let found = false;
         for (const button of buttons) {
           const text = await button.textContent();
-          if (text && text.includes('Climate Trends')) {
+          const trimmedText = text?.trim() || '';
+
+          if (trimmedText === 'Trends') {
+            console.log('  ✅ Found Trends tab, clicking...');
             await button.click();
             await page.waitForTimeout(5000); // Wait for chart to render
+            found = true;
             break;
           }
         }
+        if (!found) {
+          console.log('  ⚠️  Could not find Trends tab button');
+        }
       } catch (e) {
-        console.log('  ⚠️  Could not find Climate Trends tab');
+        console.log('  ⚠️  Error clicking Trends tab:', e);
       }
 
       console.log('  📸 Capturing climate trends...');
