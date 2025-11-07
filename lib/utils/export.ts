@@ -923,10 +923,26 @@ async function captureChartAsImage(chartId: string): Promise<string | null> {
       return null;
     }
 
-    // Find SVG element
+    // Check if element contains a canvas (for Skew-T diagram)
+    const canvasElement = element.querySelector('canvas');
+    if (canvasElement) {
+      console.log(`[Chart Capture] Canvas found, capturing directly...`);
+      try {
+        const dataUrl = canvasElement.toDataURL('image/png');
+        console.log(
+          `[Chart Capture] ✅ Successfully captured canvas ${chartId}, data URL length: ${dataUrl.length}`
+        );
+        return dataUrl;
+      } catch (error) {
+        console.error(`[Chart Capture] ❌ Error capturing canvas:`, error);
+        return null;
+      }
+    }
+
+    // Find SVG element (for Recharts)
     const svgElement = element.querySelector('svg');
     if (!svgElement) {
-      console.error(`[Chart Capture] ❌ No SVG found in ${chartId}`);
+      console.error(`[Chart Capture] ❌ No SVG or Canvas found in ${chartId}`);
       return null;
     }
 
@@ -953,10 +969,11 @@ async function captureChartAsImage(chartId: string): Promise<string | null> {
     const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(svgBlob);
 
-    // Create canvas
+    // Create canvas with higher resolution for better quality
+    const scale = 3; // 3x for high quality
     const canvas = document.createElement('canvas');
-    canvas.width = width * 2; // 2x for quality
-    canvas.height = height * 2;
+    canvas.width = width * scale;
+    canvas.height = height * scale;
     const ctx = canvas.getContext('2d');
 
     if (!ctx) {
@@ -968,7 +985,7 @@ async function captureChartAsImage(chartId: string): Promise<string | null> {
     // Set white background
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.scale(2, 2);
+    ctx.scale(scale, scale);
 
     // Load and draw image
     return new Promise<string | null>((resolve) => {
@@ -1091,6 +1108,10 @@ export async function exportAtmosphericDataToPDF(
     // Force render all charts before capturing
     console.log("Force rendering all charts...");
     restoreVisibility = await forceRenderAllCharts();
+
+    // Wait for charts to fully render
+    console.log("Waiting for charts to render...");
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     const pdf = new jsPDF({
       orientation: "portrait",
@@ -1219,7 +1240,34 @@ export async function exportAtmosphericDataToPDF(
       }
 
       console.log(`[PDF] Image data received, length: ${imageData.length}`);
-      checkNewPage(maxHeight + 15);
+
+      // Get actual image dimensions to maintain aspect ratio
+      const img = new Image();
+      img.src = imageData;
+
+      await new Promise<void>((resolve) => {
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+      });
+
+      const imgWidth = img.width || 800;
+      const imgHeight = img.height || 600;
+      const aspectRatio = imgWidth / imgHeight;
+
+      // Calculate dimensions maintaining aspect ratio
+      let finalWidth = maxWidth;
+      let finalHeight = finalWidth / aspectRatio;
+
+      // If height exceeds max, scale down
+      if (finalHeight > maxHeight) {
+        finalHeight = maxHeight;
+        finalWidth = finalHeight * aspectRatio;
+      }
+
+      console.log(`[PDF] Image dimensions: ${imgWidth}x${imgHeight}, aspect ratio: ${aspectRatio.toFixed(2)}`);
+      console.log(`[PDF] Final dimensions: ${finalWidth.toFixed(1)}x${finalHeight.toFixed(1)}`);
+
+      checkNewPage(finalHeight + 15);
 
       // Add chart title
       pdf.setFontSize(11);
@@ -1228,11 +1276,12 @@ export async function exportAtmosphericDataToPDF(
       pdf.text(chartTitle, leftMargin, yPos);
       yPos += 7;
 
-      // Add image
+      // Add image with proper aspect ratio
       try {
         console.log(`[PDF] Adding image to PDF at position y=${yPos}...`);
-        pdf.addImage(imageData, "PNG", leftMargin, yPos, maxWidth, maxHeight);
+        pdf.addImage(imageData, "PNG", leftMargin, yPos, finalWidth, finalHeight, undefined, 'FAST');
         console.log(`[PDF] ✅ Successfully added chart to PDF: ${chartTitle}`);
+        yPos += finalHeight + 5;
       } catch (error) {
         console.error(
           `[PDF] ❌ Failed to add image to PDF: ${chartTitle}`,
@@ -1244,8 +1293,8 @@ export async function exportAtmosphericDataToPDF(
           false,
           [150, 150, 150]
         );
+        yPos += 10;
       }
-      yPos += maxHeight + 8;
       console.log(`[PDF] ========================================\n`);
     };
 

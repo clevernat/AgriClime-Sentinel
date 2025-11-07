@@ -192,7 +192,7 @@ export default function SkewTDiagram({
 
   return (
     <div className="space-y-4">
-      <div className="bg-white border-2 border-gray-300 rounded-lg p-4 shadow-sm">
+      <div id="skewt-diagram-canvas" className="bg-white border-2 border-gray-300 rounded-lg p-4 shadow-sm">
         <canvas
           ref={canvasRef}
           width={800}
