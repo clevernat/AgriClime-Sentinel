@@ -1076,6 +1076,8 @@ export async function exportAtmosphericDataToPDF(
     severeWeather?: any;
     airQuality?: any;
     climateTrends?: any;
+    forecast?: any[];
+    sounding?: any;
   },
   filename: string = "atmospheric-report.pdf"
 ) {
@@ -1281,7 +1283,9 @@ export async function exportAtmosphericDataToPDF(
     pdf.setFontSize(13);
     pdf.setFont("helvetica", "normal");
     pdf.setTextColor(60, 60, 60);
-    pdf.text("Climate & Air Quality Analysis", 105, yPos, { align: "center" });
+    pdf.text("Integrated Analysis of Atmospheric Conditions,", 105, yPos, { align: "center" });
+    yPos += 5;
+    pdf.text("Air Quality, Severe Weather, and Climate Trends", 105, yPos, { align: "center" });
 
     // Decorative line
     yPos += 10;
@@ -1347,11 +1351,13 @@ export async function exportAtmosphericDataToPDF(
     pdf.text(`${formattedDate} at ${formattedTime}`, 105, yPos, { align: "center" });
 
     // Data sources footer on title page
-    yPos = 260;
+    yPos = 258;
     pdf.setFontSize(8);
     pdf.setTextColor(120, 120, 120);
     pdf.setFont("helvetica", "italic");
-    pdf.text("Data Sources: NOAA National Weather Service | EPA AirNow | Open-Meteo Archive", 105, yPos, { align: "center" });
+    pdf.text("Data Sources: NOAA NWS | NOAA HRRR | EPA AirNow", 105, yPos, { align: "center" });
+    yPos += 3.5;
+    pdf.text("Iowa State Mesonet | Open-Meteo Archive", 105, yPos, { align: "center" });
 
     // Bottom decorative bar
     pdf.setFillColor(37, 99, 235);
@@ -1405,7 +1411,9 @@ export async function exportAtmosphericDataToPDF(
     const components = [
       "Real-time air quality measurements and pollutant analysis (EPA AirNow)",
       "Severe weather risk indices and atmospheric instability metrics (NOAA HRRR)",
+      "Atmospheric sounding analysis with Skew-T log-P diagrams (Iowa State Mesonet)",
       "Active weather alerts, warnings, and advisories (NOAA NWS)",
+      "7-day extended weather forecast with detailed meteorological predictions (NOAA NWS)",
       "Long-term climate trend analysis with statistical significance testing (Open-Meteo)"
     ];
 
@@ -1720,6 +1728,163 @@ export async function exportAtmosphericDataToPDF(
         160,
         85
       );
+
+      // ========== SECTION 3.5: ATMOSPHERIC SOUNDING - SKEW-T LOG-P DIAGRAM ==========
+      if (data.sounding && data.sounding.pressure && data.sounding.temperature) {
+        yPos += 10;
+        addSectionHeader("3.5 Atmospheric Sounding - Skew-T Log-P Diagram", [168, 85, 247], 2);
+
+        addText(
+          "The Skew-T log-P diagram is a fundamental tool in operational meteorology for analyzing the vertical structure of the atmosphere. This thermodynamic diagram displays temperature and dewpoint profiles as a function of pressure (altitude), enabling meteorologists to assess atmospheric stability, identify inversion layers, and calculate convective parameters.",
+          11,
+          false,
+          [40, 40, 40],
+          1.5
+        );
+        yPos += 6;
+
+        addText("Key Features of the Sounding:", 11, true, [40, 40, 40], 1.4);
+        yPos += 2;
+
+        // Calculate some basic sounding parameters
+        const surfaceTemp = data.sounding.temperature[data.sounding.temperature.length - 1];
+        const surfaceDewpoint = data.sounding.dewpoint[data.sounding.dewpoint.length - 1];
+        const surfacePressure = data.sounding.pressure[data.sounding.pressure.length - 1];
+
+        addBullet(`Surface Temperature: ${surfaceTemp.toFixed(1)}°C (${(surfaceTemp * 9/5 + 32).toFixed(1)}°F)`, 10);
+        addBullet(`Surface Dewpoint: ${surfaceDewpoint.toFixed(1)}°C (${(surfaceDewpoint * 9/5 + 32).toFixed(1)}°F)`, 10);
+        addBullet(`Surface Pressure: ${surfacePressure.toFixed(1)} hPa`, 10);
+
+        const dewpointDepression = surfaceTemp - surfaceDewpoint;
+        addBullet(`Dewpoint Depression: ${dewpointDepression.toFixed(1)}°C (indicates ${dewpointDepression < 3 ? "high humidity" : dewpointDepression < 10 ? "moderate humidity" : "low humidity"})`, 10);
+
+        yPos += 6;
+
+        addText(
+          "The Skew-T diagram below shows the temperature profile (red line) and dewpoint profile (green line) through the atmospheric column. The separation between these lines indicates atmospheric moisture content, while the slope of the temperature profile reveals stability characteristics.",
+          10,
+          false,
+          [60, 60, 60],
+          1.5
+        );
+        yPos += 8;
+
+        // Add Skew-T diagram chart
+        await addChartImage(
+          "skewt-diagram-canvas",
+          "Figure 2a: Skew-T Log-P Diagram - Vertical Atmospheric Profile",
+          160,
+          100
+        );
+      }
+
+      // ========== SECTION 3.6: 7-DAY WEATHER FORECAST ==========
+      if (data.forecast && data.forecast.length > 0) {
+        yPos += 10;
+        addSectionHeader("3.6 Extended Weather Forecast (7-Day Outlook)", [168, 85, 247], 2);
+
+        addText(
+          "The following 7-day forecast provides detailed meteorological predictions from the NOAA National Weather Service. This forecast integrates numerical weather prediction models with local observations to provide actionable weather intelligence for planning agricultural operations, outdoor activities, and emergency preparedness.",
+          11,
+          false,
+          [40, 40, 40],
+          1.5
+        );
+        yPos += 8;
+
+        data.forecast.forEach((period: any, index: number) => {
+          if (index >= 7) return; // Limit to 7 days
+
+          checkNewPage(35);
+
+          // Forecast period box
+          const isDay = period.isDaytime;
+          const boxColor = isDay ? [254, 252, 232] : [241, 245, 249];
+          const borderColor = isDay ? [234, 179, 8] : [100, 116, 139];
+
+          pdf.setFillColor(boxColor[0], boxColor[1], boxColor[2]);
+          pdf.rect(leftMargin, yPos, contentWidth, 8, "F");
+          pdf.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+          pdf.setLineWidth(0.4);
+          pdf.rect(leftMargin, yPos, contentWidth, 8, "S");
+
+          pdf.setTextColor(borderColor[0], borderColor[1], borderColor[2]);
+          pdf.setFontSize(11);
+          pdf.setFont("helvetica", "bold");
+          pdf.text(`${period.name}`, leftMargin + 3, yPos + 5.5);
+          yPos += 11;
+
+          // Temperature
+          if (period.temperature !== undefined) {
+            addText(
+              `Temperature: ${period.temperature}°${period.temperatureUnit || 'F'}`,
+              10,
+              true,
+              [40, 40, 40],
+              1.4
+            );
+          }
+
+          // Wind
+          if (period.windSpeed) {
+            addText(
+              `Wind: ${period.windDirection || 'Variable'} at ${period.windSpeed}`,
+              10,
+              false,
+              [60, 60, 60],
+              1.4
+            );
+          }
+
+          // Precipitation probability
+          if (period.probabilityOfPrecipitation?.value !== undefined && period.probabilityOfPrecipitation.value !== null) {
+            addText(
+              `Precipitation Probability: ${period.probabilityOfPrecipitation.value}%`,
+              10,
+              false,
+              [60, 60, 60],
+              1.4
+            );
+          }
+
+          // Short forecast
+          if (period.shortForecast) {
+            addText(
+              `Conditions: ${period.shortForecast}`,
+              10,
+              false,
+              [60, 60, 60],
+              1.4
+            );
+          }
+
+          // Detailed forecast
+          if (period.detailedForecast) {
+            yPos += 2;
+            addText(
+              period.detailedForecast,
+              9,
+              false,
+              [80, 80, 80],
+              1.5,
+              3
+            );
+          }
+
+          yPos += 6;
+        });
+
+        yPos += 4;
+        addText(
+          "Note: Weather forecasts are subject to change as new data becomes available. For the most current information, consult NOAA National Weather Service updates.",
+          9,
+          false,
+          [120, 120, 120],
+          1.4
+        );
+        yPos += 5;
+      }
+
     } else {
       addSectionHeader("SECTION 3: SEVERE WEATHER RISK ASSESSMENT", [156, 163, 175], 1);
       addText("Severe weather index data is currently unavailable for this location. This may be due to data source limitations or temporary service interruptions.", 11, false, [60, 60, 60], 1.5);
@@ -1840,6 +2005,8 @@ export async function exportAtmosphericDataToPDF(
       "Weather alert status and current atmospheric hazards have been documented and assessed for immediate risk evaluation.",
       "Air quality measurements provide current pollutant concentrations and health guidance for sensitive populations.",
       "Severe weather indices quantify atmospheric instability and convective potential for thunderstorm forecasting.",
+      "Atmospheric sounding analysis via Skew-T diagrams reveals vertical temperature and moisture structure for stability assessment.",
+      "7-day extended forecast provides detailed meteorological predictions for operational planning and decision-making.",
       "Long-term climate trend analysis reveals statistically significant patterns in temperature evolution over multiple decades."
     ];
 
@@ -1896,8 +2063,9 @@ export async function exportAtmosphericDataToPDF(
     yPos += 4;
 
     addBullet("U.S. Environmental Protection Agency (EPA) AirNow — Real-time air quality monitoring network", 10);
-    addBullet("NOAA National Weather Service (NWS) — Active weather alerts and warnings", 10);
+    addBullet("NOAA National Weather Service (NWS) — Active weather alerts, warnings, and 7-day forecasts", 10);
     addBullet("NOAA High-Resolution Rapid Refresh (HRRR) Model — Atmospheric sounding data and severe weather indices", 10);
+    addBullet("Iowa State University Environmental Mesonet — BUFKIT-formatted atmospheric soundings for Skew-T analysis", 10);
     addBullet("Open-Meteo Historical Weather Archive — ERA5 reanalysis climate data (1970–present)", 10);
 
     // Professional footer on every page (except title page)
@@ -1982,6 +2150,7 @@ export function exportAtmosphericDataToCSV(
     severeWeather?: any;
     airQuality?: any;
     climateTrends?: any;
+    forecast?: any[];
   },
   filename: string = "atmospheric-data.csv"
 ) {
@@ -2060,6 +2229,25 @@ export function exportAtmosphericDataToCSV(
     csvData.push(["Climate Trends"], ["Year", "Value"]);
     data.climateTrends.data.forEach((point: any) => {
       csvData.push([point.year.toString(), point.value.toFixed(2)]);
+    });
+    csvData.push([""]);
+  }
+
+  // Weather Forecast
+  if (data.forecast && data.forecast.length > 0) {
+    csvData.push(
+      ["Weather Forecast"],
+      ["Period", "Temperature", "Wind", "Precipitation %", "Short Forecast", "Detailed Forecast"]
+    );
+    data.forecast.forEach((period: any) => {
+      csvData.push([
+        period.name || "",
+        `${period.temperature}°${period.temperatureUnit}` || "",
+        `${period.windSpeed} ${period.windDirection}` || "",
+        period.probabilityOfPrecipitation !== undefined ? `${period.probabilityOfPrecipitation}%` : "N/A",
+        period.shortForecast || "",
+        period.detailedForecast || "",
+      ]);
     });
     csvData.push([""]);
   }

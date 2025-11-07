@@ -16,6 +16,8 @@ interface AtmosphericExportButtonsProps {
     severeWeather?: any;
     airQuality?: any;
     climateTrends?: any;
+    forecast?: any[];
+    sounding?: any;
   };
   dashboardElementId?: string;
 }

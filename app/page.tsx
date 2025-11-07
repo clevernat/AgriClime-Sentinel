@@ -7,6 +7,7 @@ import { MapDataLayer, CropType } from "@/types";
 import LayerSelector from "@/components/Map/LayerSelector";
 import MapLegend from "@/components/Map/MapLegend";
 import CountySearch from "@/components/Search/CountySearch";
+import L from "leaflet";
 
 // Dynamically import map component to avoid SSR issues with Leaflet
 const CountyMap = dynamic(() => import("@/components/Map/CountyMap"), {
@@ -20,6 +21,26 @@ const RegionalDashboard = dynamic(
 
 const AtmosphericScienceDashboard = dynamic(
   () => import("@/components/Dashboard/AtmosphericScienceDashboard"),
+  { ssr: false }
+);
+
+const ComparisonDashboard = dynamic(
+  () => import("@/components/Comparison/ComparisonDashboard"),
+  { ssr: false }
+);
+
+const MultiCountySelector = dynamic(
+  () => import("@/components/Comparison/MultiCountySelector"),
+  { ssr: false }
+);
+
+const TimeSlider = dynamic(
+  () => import("@/components/Map/TimeSlider"),
+  { ssr: false }
+);
+
+const RadarOverlay = dynamic(
+  () => import("@/components/Map/RadarOverlay"),
   { ssr: false }
 );
 
@@ -41,6 +62,20 @@ export default function Home() {
     "agricultural" | "atmospheric"
   >("atmospheric");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Comparison mode state
+  const [isComparisonMode, setIsComparisonMode] = useState(false);
+  const [selectedCountiesForComparison, setSelectedCountiesForComparison] = useState<SelectedCountyData[]>([]);
+  const [showComparisonDashboard, setShowComparisonDashboard] = useState(false);
+
+  // Historical playback state
+  const [isHistoricalMode, setIsHistoricalMode] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Radar overlay state
+  const [radarEnabled, setRadarEnabled] = useState(false);
+  const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
 
   /**
    * Handle county click with optimized single-county fetch
@@ -65,33 +100,105 @@ export default function Home() {
       const latitude = county.centroid?.latitude || 39.8283; // Default: center of US
       const longitude = county.centroid?.longitude || -98.5795;
 
-      setSelectedCountyData({
+      const countyData = {
         fips,
         name: county.name,
         state: county.state,
         latitude,
         longitude,
-      });
+      };
+
+      // If in comparison mode, add to comparison list
+      if (isComparisonMode) {
+        // Check if already selected
+        if (selectedCountiesForComparison.some(c => c.fips === fips)) {
+          return; // Already selected
+        }
+
+        // Check max limit (5 counties)
+        if (selectedCountiesForComparison.length >= 5) {
+          alert("Maximum 5 counties can be compared at once");
+          return;
+        }
+
+        setSelectedCountiesForComparison(prev => [...prev, countyData]);
+      } else {
+        // Normal single-county mode
+        setSelectedCountyData(countyData);
+        setTimeout(() => {
+          setSelectedCounty(fips);
+        }, 150);
+      }
     } catch (error) {
       console.error("Error fetching county data:", error);
       // Use default location on error
-      setSelectedCountyData({
+      const countyData = {
         fips,
         name: "Unknown",
         state: "Unknown",
         latitude: 39.8283,
         longitude: -98.5795,
-      });
-    }
+      };
 
-    setTimeout(() => {
-      setSelectedCounty(fips);
-    }, 150);
+      if (isComparisonMode) {
+        if (!selectedCountiesForComparison.some(c => c.fips === fips) && selectedCountiesForComparison.length < 5) {
+          setSelectedCountiesForComparison(prev => [...prev, countyData]);
+        }
+      } else {
+        setSelectedCountyData(countyData);
+        setTimeout(() => {
+          setSelectedCounty(fips);
+        }, 150);
+      }
+    }
   };
 
   const handleCloseDashboard = () => {
     setSelectedCounty(null);
     setSelectedCountyData(null);
+  };
+
+  const handleRemoveCountyFromComparison = (fips: string) => {
+    setSelectedCountiesForComparison(prev => prev.filter(c => c.fips !== fips));
+  };
+
+  const handleToggleComparisonMode = () => {
+    setIsComparisonMode(!isComparisonMode);
+    if (isComparisonMode) {
+      // Exiting comparison mode - clear selections
+      setSelectedCountiesForComparison([]);
+      setShowComparisonDashboard(false);
+    }
+  };
+
+  const handleShowComparison = () => {
+    if (selectedCountiesForComparison.length < 2) {
+      alert("Please select at least 2 counties to compare");
+      return;
+    }
+    setShowComparisonDashboard(true);
+  };
+
+  const handleCloseComparison = () => {
+    setShowComparisonDashboard(false);
+  };
+
+  const handleToggleHistoricalMode = () => {
+    setIsHistoricalMode(!isHistoricalMode);
+    if (!isHistoricalMode) {
+      setSelectedYear(new Date().getFullYear());
+      setIsPlaying(false);
+    }
+  };
+
+  const handleYearChange = (year: number) => {
+    setSelectedYear(year);
+    // In a full implementation, this would trigger a map data reload for the selected year
+    console.log(`Historical playback: Year ${year}`);
+  };
+
+  const handlePlayPause = () => {
+    setIsPlaying(!isPlaying);
   };
 
   return (
@@ -205,6 +312,84 @@ export default function Home() {
                 <X size={24} />
               </button>
             </div>
+            {/* Comparison Mode Toggle */}
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-bold text-sm sm:text-base text-gray-900">
+                  Comparison Mode
+                </h3>
+                <button
+                  onClick={handleToggleComparisonMode}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                    isComparisonMode
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {isComparisonMode ? "ON" : "OFF"}
+                </button>
+              </div>
+              <p className="text-xs text-gray-600">
+                {isComparisonMode
+                  ? "Click counties to add to comparison (2-5)"
+                  : "Toggle to compare multiple counties"}
+              </p>
+              {isComparisonMode && selectedCountiesForComparison.length >= 2 && (
+                <button
+                  onClick={handleShowComparison}
+                  className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors"
+                >
+                  Compare {selectedCountiesForComparison.length} Counties
+                </button>
+              )}
+            </div>
+
+            {/* Multi-County Selector (only in comparison mode) */}
+            {isComparisonMode && (
+              <MultiCountySelector
+                selectedCounties={selectedCountiesForComparison}
+                onRemoveCounty={handleRemoveCountyFromComparison}
+                maxCounties={5}
+              />
+            )}
+
+            {/* Historical Playback Mode Toggle */}
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-bold text-sm sm:text-base text-gray-900">
+                  Historical Playback
+                </h3>
+                <button
+                  onClick={handleToggleHistoricalMode}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                    isHistoricalMode
+                      ? "bg-purple-600 text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {isHistoricalMode ? "ON" : "OFF"}
+                </button>
+              </div>
+              <p className="text-xs text-gray-600">
+                {isHistoricalMode
+                  ? "View historical climate data (1970-2025)"
+                  : "Toggle to view historical data"}
+              </p>
+            </div>
+
+            {/* Time Slider (only in historical mode) */}
+            {isHistoricalMode && (
+              <TimeSlider
+                startYear={1970}
+                endYear={2025}
+                currentYear={selectedYear}
+                onYearChange={handleYearChange}
+                isPlaying={isPlaying}
+                onPlayPause={handlePlayPause}
+                playbackSpeed={500}
+              />
+            )}
+
             {/* County Search */}
             <div className="bg-white p-3 sm:p-4 rounded-lg shadow">
               <h3 className="font-bold mb-2 text-sm sm:text-base text-gray-900">
@@ -220,6 +405,35 @@ export default function Home() {
               onCropChange={setSelectedCrop}
             />
             <MapLegend layer={selectedLayer} />
+
+            {/* NEXRAD Radar Toggle */}
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-bold text-sm sm:text-base text-gray-900">
+                  NEXRAD Radar
+                </h3>
+                <button
+                  onClick={() => setRadarEnabled(!radarEnabled)}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                    radarEnabled
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {radarEnabled ? "ON" : "OFF"}
+                </button>
+              </div>
+              <p className="text-xs text-gray-600">
+                {radarEnabled
+                  ? "Real-time NEXRAD radar overlay active"
+                  : "Toggle to show precipitation radar"}
+              </p>
+              {radarEnabled && (
+                <p className="text-xs text-green-700 mt-2 font-semibold">
+                  ✅ Live radar from Iowa State Mesonet
+                </p>
+              )}
+            </div>
 
             {/* Info Panel - Now visible on all screen sizes */}
             <div className="bg-white p-3 sm:p-4 rounded-lg shadow">
@@ -288,6 +502,15 @@ export default function Home() {
             cropType={selectedCrop}
             onCountyClick={handleCountyClick}
             hideMobileZoomControls={isMobileSidebarOpen}
+            radarEnabled={radarEnabled}
+            onMapReady={setMapInstance}
+          />
+
+          {/* NEXRAD Radar Overlay */}
+          <RadarOverlay
+            map={mapInstance}
+            enabled={radarEnabled}
+            opacity={0.6}
           />
         </main>
       </div>
@@ -312,6 +535,15 @@ export default function Home() {
             onClose={handleCloseDashboard}
           />
         )}
+
+      {/* Comparison Dashboard Modal */}
+      {showComparisonDashboard && selectedCountiesForComparison.length >= 2 && (
+        <ComparisonDashboard
+          counties={selectedCountiesForComparison}
+          onClose={handleCloseComparison}
+          dashboardType={dashboardType}
+        />
+      )}
 
       {/* Footer */}
       <footer

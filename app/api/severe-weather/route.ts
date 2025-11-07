@@ -145,12 +145,14 @@ export async function GET(request: NextRequest) {
     const response: {
       success: boolean;
       indices: ReturnType<typeof calculateSevereWeatherIndices>;
+      sounding?: AtmosphericSounding;
       dataSource: string | null;
       timestamp: string;
       location?: { latitude: number; longitude: number };
     } = {
       success: true,
       indices,
+      sounding,
       dataSource,
       timestamp: new Date().toISOString(),
     };

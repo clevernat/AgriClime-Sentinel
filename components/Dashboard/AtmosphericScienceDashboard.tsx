@@ -8,6 +8,7 @@ import {
   Cloud,
   TrendingUp,
   Activity,
+  CloudRain,
 } from "lucide-react";
 import {
   LineChart,
@@ -21,10 +22,11 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import type { WeatherAlert } from "@/lib/api/noaa-weather";
+import type { WeatherAlert, WeatherForecast } from "@/lib/api/noaa-weather";
 import type { SevereWeatherIndices } from "@/lib/api/severe-weather-indices";
 import AtmosphericExportButtons from "@/components/Export/AtmosphericExportButtons";
 import ChartExportButton from "@/components/Export/ChartExportButton";
+import SkewTDiagram from "@/components/Atmospheric/SkewTDiagram";
 
 interface AirQualityObservation {
   dateObserved: string;
@@ -106,7 +108,7 @@ export default function AtmosphericScienceDashboard({
   const [loading, setLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState<string>("Initializing...");
   const [activeTab, setActiveTab] = useState<
-    "alerts" | "severe" | "airquality" | "trends"
+    "alerts" | "severe" | "airquality" | "trends" | "forecast"
   >("alerts");
 
   const [weatherAlerts, setWeatherAlerts] = useState<WeatherAlert[]>([]);
@@ -115,10 +117,12 @@ export default function AtmosphericScienceDashboard({
   const [severeWeatherDataSource, setSevereWeatherDataSource] = useState<
     string | null
   >(null);
+  const [soundingData, setSoundingData] = useState<any | null>(null);
   const [airQuality, setAirQuality] = useState<AirQualityData | null>(null);
   const [climateTrends, setClimateTrends] = useState<ClimateTrendsData | null>(
     null
   );
+  const [weatherForecast, setWeatherForecast] = useState<WeatherForecast[]>([]);
 
   /**
    * Helper function to fetch with timeout
@@ -170,19 +174,21 @@ export default function AtmosphericScienceDashboard({
         fetchWithTimeout(`/api/severe-weather?lat=${latitude}&lon=${longitude}`, 10000),
         fetchWithTimeout(`/api/air-quality?lat=${latitude}&lon=${longitude}`, 10000),
         fetchWithTimeout(`/api/climate-trends?fips=${fips}&type=temperature`, 15000), // Climate trends may take longer
+        fetchWithTimeout(`/api/weather-forecast?lat=${latitude}&lon=${longitude}`, 10000), // Weather forecast
       ];
 
-      setLoadingProgress("Loading data from 4 sources...");
-      const [alertsRes, severeRes, aqRes, trendsRes] = await Promise.all(fetchPromises);
+      setLoadingProgress("Loading data from 5 sources...");
+      const [alertsRes, severeRes, aqRes, trendsRes, forecastRes] = await Promise.all(fetchPromises);
 
       setLoadingProgress("Processing responses...");
 
       // Parse all responses in parallel
-      const [alertsData, severeData, aqData, trendsData] = await Promise.all([
+      const [alertsData, severeData, aqData, trendsData, forecastData] = await Promise.all([
         alertsRes.json().catch(() => ({ success: false })),
         severeRes.json().catch(() => ({ success: false })),
         aqRes.json().catch(() => ({ success: false })),
         trendsRes.json().catch(() => ({ success: false })),
+        forecastRes.json().catch(() => ({ success: false })),
       ]);
 
       // Process weather alerts
@@ -194,9 +200,15 @@ export default function AtmosphericScienceDashboard({
       if (severeData.success && severeData.indices) {
         setSevereWeatherIndices(severeData.indices);
         setSevereWeatherDataSource(severeData.dataSource || "live");
+
+        // Extract sounding data if available
+        if (severeData.sounding) {
+          setSoundingData(severeData.sounding);
+        }
       } else {
         setSevereWeatherIndices(null);
         setSevereWeatherDataSource(null);
+        setSoundingData(null);
       }
 
       // Process air quality - REAL DATA ONLY
@@ -212,6 +224,13 @@ export default function AtmosphericScienceDashboard({
       } else {
         setClimateTrends(null);
       }
+
+      // Process weather forecast - REAL DATA ONLY
+      if (forecastData.success && forecastData.forecast) {
+        setWeatherForecast(forecastData.forecast);
+      } else {
+        setWeatherForecast([]);
+      }
     } catch (error) {
       console.error("Error fetching atmospheric data:", error);
       // Set null on error - no sample data
@@ -219,6 +238,7 @@ export default function AtmosphericScienceDashboard({
       setSevereWeatherDataSource(null);
       setAirQuality(null);
       setClimateTrends(null);
+      setWeatherForecast([]);
     } finally {
       setLoading(false);
     }
@@ -304,6 +324,8 @@ export default function AtmosphericScienceDashboard({
                 severeWeather: severeWeatherIndices,
                 airQuality: airQuality,
                 climateTrends: climateTrends,
+                forecast: weatherForecast,
+                sounding: soundingData,
               }}
               dashboardElementId="atmospheric-dashboard-content"
             />
@@ -363,6 +385,17 @@ export default function AtmosphericScienceDashboard({
           >
             <TrendingUp size={16} className="sm:w-[18px] sm:h-[18px]" />
             <span>Trends</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("forecast")}
+            className={`flex-shrink-0 py-3 px-4 sm:px-6 md:px-8 font-bold text-sm sm:text-base transition-all whitespace-nowrap flex items-center gap-2 ${
+              activeTab === "forecast"
+                ? "bg-blue-50 text-blue-700 border-b-4 border-blue-600"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+            }`}
+          >
+            <CloudRain size={16} className="sm:w-[18px] sm:h-[18px]" />
+            <span>Forecast</span>
           </button>
         </div>
 
@@ -735,6 +768,17 @@ export default function AtmosphericScienceDashboard({
                       <p className="text-xs text-gray-500 mt-1">Parameter</p>
                     </div>
                   </div>
+                </div>
+
+                {/* Skew-T Log-P Diagram */}
+                <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-sm">
+                  <h4 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
+                    Atmospheric Sounding - Skew-T Log-P Diagram
+                  </h4>
+                  <SkewTDiagram
+                    soundingData={soundingData}
+                    location={`${countyName}, ${state}`}
+                  />
                 </div>
 
                 <div
@@ -1230,6 +1274,103 @@ export default function AtmosphericScienceDashboard({
                     </div>
                   </div>
                 )}
+              </>
+            )}
+          </div>
+
+          {/* Forecast Tab */}
+          <div
+            className="space-y-4 sm:space-y-6"
+            style={{ display: activeTab === "forecast" ? "block" : "none" }}
+          >
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
+              7-Day Weather Forecast
+            </h3>
+
+            {weatherForecast.length === 0 ? (
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300 rounded-lg sm:rounded-xl p-6 sm:p-12 text-center shadow-lg">
+                <CloudRain
+                  className="mx-auto mb-3 sm:mb-4 text-gray-400"
+                  size={48}
+                />
+                <h4 className="text-lg sm:text-2xl font-bold text-gray-700 mb-2 sm:mb-3">
+                  No Forecast Data Available
+                </h4>
+                <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 max-w-2xl mx-auto">
+                  Weather forecast data from NOAA National Weather Service is not currently
+                  available for this location.
+                </p>
+                <p className="text-xs sm:text-sm text-gray-500">
+                  Data Source: NOAA NWS Forecast API
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Forecast Periods */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {weatherForecast.map((period, index) => (
+                    <div
+                      key={index}
+                      className={`border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow ${
+                        period.isDaytime ? 'bg-gradient-to-br from-blue-50 to-white' : 'bg-gradient-to-br from-indigo-50 to-white'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h4 className="text-lg sm:text-xl font-bold text-gray-800">
+                            {period.name}
+                          </h4>
+                          <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                            {new Date(period.startTime).toLocaleDateString('en-US', {
+                              weekday: 'short',
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-3xl sm:text-4xl font-bold text-blue-600">
+                            {period.temperature}°{period.temperatureUnit}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 mb-3">
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <Wind size={16} className="text-gray-500" />
+                          <span>
+                            {period.windSpeed} {period.windDirection}
+                          </span>
+                        </div>
+                        {period.probabilityOfPrecipitation !== undefined && period.probabilityOfPrecipitation !== null && (
+                          <div className="flex items-center gap-2 text-sm text-gray-700">
+                            <CloudRain size={16} className="text-gray-500" />
+                            <span>
+                              Precipitation: {period.probabilityOfPrecipitation}%
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="border-t border-gray-200 pt-3">
+                        <p className="text-sm font-semibold text-gray-800 mb-1">
+                          {period.shortForecast}
+                        </p>
+                        <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                          {period.detailedForecast}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Data Source Info */}
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg p-4">
+                  <p className="text-sm text-green-900">
+                    <strong>📊 Data Source:</strong> Real-time forecast from NOAA National Weather Service.
+                    Forecasts are updated multiple times daily and represent the official NWS forecast for this location.
+                  </p>
+                </div>
               </>
             )}
           </div>

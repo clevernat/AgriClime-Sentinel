@@ -11,6 +11,8 @@ interface CountyMapProps {
   cropType?: string;
   onCountyClick?: (fips: string) => void;
   hideMobileZoomControls?: boolean;
+  radarEnabled?: boolean;
+  onMapReady?: (map: L.Map) => void;
 }
 
 export default function CountyMap({
@@ -18,6 +20,8 @@ export default function CountyMap({
   cropType,
   onCountyClick,
   hideMobileZoomControls = false,
+  radarEnabled = false,
+  onMapReady,
 }: CountyMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -272,6 +276,11 @@ export default function CountyMap({
         attribution: "© OpenStreetMap contributors",
         maxZoom: 18,
       }).addTo(mapRef.current);
+
+      // Notify parent that map is ready
+      if (onMapReady && mapRef.current) {
+        onMapReady(mapRef.current);
+      }
     } catch {
       // Error handling - log to error monitoring service in production
       setError("Failed to initialize map");
