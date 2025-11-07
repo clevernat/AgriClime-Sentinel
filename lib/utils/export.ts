@@ -131,24 +131,40 @@ async function forceRenderAgriculturalCharts(): Promise<() => void> {
   if (chart1) {
     console.log("[Agricultural Chart Rendering] Scrolling Chart 1 into view...");
     chart1.scrollIntoView({ behavior: "auto", block: "center" });
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const rect1 = chart1.getBoundingClientRect();
     console.log("[Agricultural Chart Rendering] Chart 1 dimensions:", { width: rect1.width, height: rect1.height });
+
+    // Check if SVG is rendered
+    const svg1 = chart1.querySelector("svg");
+    console.log("[Agricultural Chart Rendering] Chart 1 SVG found:", svg1 ? "✅" : "❌");
+    if (svg1) {
+      const svgRect = svg1.getBoundingClientRect();
+      console.log("[Agricultural Chart Rendering] Chart 1 SVG dimensions:", { width: svgRect.width, height: svgRect.height });
+    }
   }
 
   if (chart2) {
     console.log("[Agricultural Chart Rendering] Scrolling Chart 2 into view...");
     chart2.scrollIntoView({ behavior: "auto", block: "center" });
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const rect2 = chart2.getBoundingClientRect();
     console.log("[Agricultural Chart Rendering] Chart 2 dimensions:", { width: rect2.width, height: rect2.height });
+
+    // Check if SVG is rendered
+    const svg2 = chart2.querySelector("svg");
+    console.log("[Agricultural Chart Rendering] Chart 2 SVG found:", svg2 ? "✅" : "❌");
+    if (svg2) {
+      const svgRect = svg2.getBoundingClientRect();
+      console.log("[Agricultural Chart Rendering] Chart 2 SVG dimensions:", { width: svgRect.width, height: svgRect.height });
+    }
   }
 
-  // Wait for Recharts to fully render all SVG charts
-  console.log("[Agricultural Chart Rendering] Waiting 2 more seconds for charts to fully render...");
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  // Wait longer for Recharts to fully render all SVG charts
+  console.log("[Agricultural Chart Rendering] Waiting 3 more seconds for charts to fully render...");
+  await new Promise((resolve) => setTimeout(resolve, 3000));
 
   console.log("[Agricultural Chart Rendering] ✅ All charts should be rendered now");
 
@@ -569,26 +585,42 @@ export async function exportToPDF(
           const rect1 = chart1Element.getBoundingClientRect();
           console.log("[Agricultural PDF] Chart 1 rect:", rect1);
 
-          const canvas1 = await html2canvas(chart1Element, {
-            scale: 2,
-            backgroundColor: "#f9fafb",
-            logging: true,
-            useCORS: true,
-            allowTaint: true,
-          });
+          // Check if SVG exists
+          const svg1 = chart1Element.querySelector("svg");
+          if (!svg1) {
+            console.error("[Agricultural PDF] ❌ Chart 1 SVG not found!");
+            addText("⚠ Chart visualization unavailable: Figure 1: Historical Drought Trends", 10, false, [150, 150, 150]);
+            yPos += 5;
+          } else {
+            console.log("[Agricultural PDF] Chart 1 SVG found, capturing...");
 
-          console.log("[Agricultural PDF] Chart 1 canvas created:", canvas1.width, "x", canvas1.height);
+            const canvas1 = await html2canvas(chart1Element, {
+              scale: 2,
+              backgroundColor: "#f9fafb",
+              logging: false,
+              useCORS: true,
+              allowTaint: true,
+            });
 
-          const imgData1 = canvas1.toDataURL("image/png");
-          const imgWidth1 = contentWidth;
-          const imgHeight1 = (canvas1.height * imgWidth1) / canvas1.width;
+            console.log("[Agricultural PDF] Chart 1 canvas created:", canvas1.width, "x", canvas1.height);
 
-          checkPageBreak(imgHeight1 + 10);
+            if (canvas1.width === 0 || canvas1.height === 0) {
+              console.error("[Agricultural PDF] ❌ Chart 1 canvas has zero dimensions!");
+              addText("⚠ Chart visualization unavailable: Figure 1: Historical Drought Trends", 10, false, [150, 150, 150]);
+              yPos += 5;
+            } else {
+              const imgData1 = canvas1.toDataURL("image/png");
+              const imgWidth1 = contentWidth;
+              const imgHeight1 = (canvas1.height * imgWidth1) / canvas1.width;
 
-          pdf.addImage(imgData1, "PNG", leftMargin, yPos, imgWidth1, imgHeight1);
-          yPos += imgHeight1 + 8;
+              checkPageBreak(imgHeight1 + 10);
 
-          console.log("[Agricultural PDF] ✅ Chart 1 added to PDF");
+              pdf.addImage(imgData1, "PNG", leftMargin, yPos, imgWidth1, imgHeight1);
+              yPos += imgHeight1 + 8;
+
+              console.log("[Agricultural PDF] ✅ Chart 1 added to PDF");
+            }
+          }
         } catch (error) {
           console.error("[Agricultural PDF] ❌ Error capturing Chart 1:", error);
           addText("⚠ Chart visualization unavailable: Figure 1: Historical Drought Trends", 10, false, [150, 150, 150]);
@@ -621,26 +653,42 @@ export async function exportToPDF(
           const rect2 = chart2Element.getBoundingClientRect();
           console.log("[Agricultural PDF] Chart 2 rect:", rect2);
 
-          const canvas2 = await html2canvas(chart2Element, {
-            scale: 2,
-            backgroundColor: "#f9fafb",
-            logging: true,
-            useCORS: true,
-            allowTaint: true,
-          });
+          // Check if SVG exists
+          const svg2 = chart2Element.querySelector("svg");
+          if (!svg2) {
+            console.error("[Agricultural PDF] ❌ Chart 2 SVG not found!");
+            addText("⚠ Chart visualization unavailable: Figure 2: Extreme Heat Days by Year", 10, false, [150, 150, 150]);
+            yPos += 5;
+          } else {
+            console.log("[Agricultural PDF] Chart 2 SVG found, capturing...");
 
-          console.log("[Agricultural PDF] Chart 2 canvas created:", canvas2.width, "x", canvas2.height);
+            const canvas2 = await html2canvas(chart2Element, {
+              scale: 2,
+              backgroundColor: "#f9fafb",
+              logging: false,
+              useCORS: true,
+              allowTaint: true,
+            });
 
-          const imgData2 = canvas2.toDataURL("image/png");
-          const imgWidth2 = contentWidth;
-          const imgHeight2 = (canvas2.height * imgWidth2) / canvas2.width;
+            console.log("[Agricultural PDF] Chart 2 canvas created:", canvas2.width, "x", canvas2.height);
 
-          checkPageBreak(imgHeight2 + 10);
+            if (canvas2.width === 0 || canvas2.height === 0) {
+              console.error("[Agricultural PDF] ❌ Chart 2 canvas has zero dimensions!");
+              addText("⚠ Chart visualization unavailable: Figure 2: Extreme Heat Days by Year", 10, false, [150, 150, 150]);
+              yPos += 5;
+            } else {
+              const imgData2 = canvas2.toDataURL("image/png");
+              const imgWidth2 = contentWidth;
+              const imgHeight2 = (canvas2.height * imgWidth2) / canvas2.width;
 
-          pdf.addImage(imgData2, "PNG", leftMargin, yPos, imgWidth2, imgHeight2);
-          yPos += imgHeight2 + 8;
+              checkPageBreak(imgHeight2 + 10);
 
-          console.log("[Agricultural PDF] ✅ Chart 2 added to PDF");
+              pdf.addImage(imgData2, "PNG", leftMargin, yPos, imgWidth2, imgHeight2);
+              yPos += imgHeight2 + 8;
+
+              console.log("[Agricultural PDF] ✅ Chart 2 added to PDF");
+            }
+          }
         } catch (error) {
           console.error("[Agricultural PDF] ❌ Error capturing Chart 2:", error);
           addText("⚠ Chart visualization unavailable: Figure 2: Extreme Heat Days by Year", 10, false, [150, 150, 150]);
