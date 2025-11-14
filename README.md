@@ -582,24 +582,31 @@ AgriClime Sentinel uses a sophisticated **two-tier data architecture** that bala
    - Fast geospatial visualization
    - Color-coded by meteorological values
    - Smooth interaction for pattern identification
+   - Dashboard Mode indicator automatically updates based on layer
    ↓
 4. User Clicks on Specific County for Detailed Analysis
    ↓
-5. Dual Dashboard System Opens (2-5 seconds) ✅
+5. Smart Dashboard System Opens (2-5 seconds) ✅
+   - System automatically determines which dashboard to open based on selected layer
+   - Opens to the most relevant tab/section for that data type
 
-   🌪️ ATMOSPHERIC SCIENCE DASHBOARD:
+   IF ATMOSPHERIC LAYER (Temperature, Precipitation):
+   🌪️ ATMOSPHERIC SCIENCE DASHBOARD OPENS:
    ├─ Weather Alerts (NOAA NWS API) → Real-time warnings
    ├─ Severe Weather Indices (NOAA HRRR) → CAPE, SRH, STP, SCP
    ├─ Air Quality (EPA AirNow) → 6 criteria pollutants
-   └─ Climate Trends (Open-Meteo) → 55-year statistical analysis
+   └─ Climate Trends (Open-Meteo) → 55-year statistical analysis ⭐ AUTO-SELECTED TAB
+   └─ Visual Badge: "Viewing: 🌡️ Temperature Trends" or "Viewing: 🌧️ Precipitation & Climate"
 
-   🌾 AGRO-METEOROLOGY DASHBOARD:
+   IF AGRICULTURAL LAYER (Drought, Soil Moisture, Crop Risk):
+   🌾 AGRO-METEOROLOGY DASHBOARD OPENS:
    ├─ Crop Risk Index → Climate-agriculture interactions
    ├─ Growing Degree Days → Thermal time accumulation
    ├─ Precipitation Analysis → Hydrometeorological assessment
-   └─ Soil Moisture → Land-atmosphere coupling
+   ├─ Soil Moisture → Land-atmosphere coupling ⭐ AUTO-SCROLLED TO RELEVANT SECTION
+   └─ Visual Badge: "Viewing: 🏜️ Drought Analysis" or "Viewing: 💧 Soil Moisture Analysis"
 
-Result: Comprehensive atmospheric science analysis with agro-meteorological applications!
+Result: Intelligent, context-aware dashboard opening with zero manual switching required!
 ```
 
 **📚 For detailed architecture documentation, see:** [`docs/DATA_ARCHITECTURE.md`](docs/DATA_ARCHITECTURE.md)
@@ -712,6 +719,22 @@ Risk Score = (Rainfall Deficit × 0.30) +
 ---
 
 ## 🎨 Recent Improvements (November 2025)
+
+### Smart Dashboard Opening Based on Map Layer Selection 🎯
+
+- **Intelligent Layer-to-Dashboard Mapping**: Dashboard type automatically determined by selected map layer
+  - **Atmospheric Layers** (Temperature, Precipitation) → **Atmospheric Science Dashboard**
+  - **Agricultural Layers** (Drought, Soil Moisture, Crop Risk) → **Agricultural Dashboard**
+  - **Automatic Tab/Section Selection**: Opens to the most relevant tab based on layer context
+    - Temperature layer → Climate Trends tab with 55-year temperature analysis
+    - Precipitation layer → Climate Trends tab with precipitation patterns
+    - Drought layer → Drought section in Agricultural Dashboard
+    - Soil Moisture layer → Soil Moisture section in Agricultural Dashboard
+    - Crop Risk layer → Crop Risk section in Agricultural Dashboard
+  - **Visual Context Indicators**: Badge shows current layer context (e.g., "Viewing: 🌡️ Temperature Trends")
+  - **Read-Only Dashboard Mode Indicator**: Shows which dashboard mode is active (auto-selected, not manually clickable)
+  - **Stale Closure Bug Fix**: Implemented useRef pattern to prevent React closure issues with layer selection
+  - **Seamless User Experience**: No manual dashboard switching required - system intelligently routes to correct view
 
 ### Historical Playback & Time-Series Analysis 🕰️
 
@@ -855,6 +878,19 @@ Risk Score = (Rainfall Deficit × 0.30) +
   - **Technical Implementation**: `forceRenderAllCharts()` function with automatic cleanup
 
 ### Technical Improvements & Bug Fixes 🔧
+
+- **Smart Dashboard Opening Implementation**:
+  - Created centralized layer-to-dashboard mapping configuration (`lib/utils/layer-dashboard-mapping.ts`)
+  - Implemented automatic dashboard type selection based on map layer
+  - Fixed critical stale closure bug using useRef pattern for selectedLayer
+  - Removed manual dashboard mode toggle to prevent user override conflicts
+  - Added visual context badges showing current layer in dashboard headers
+  - Ensured consistent behavior across all 5 map data layers
+  - Technical details:
+    - `selectedLayerRef` tracks latest layer value to avoid React closure issues
+    - `useEffect` with `[selectedLayer]` dependency updates dashboard type automatically
+    - Empty dependency array in `handleCountyClick` prevents stale closures
+    - Dashboard mode indicator is read-only (non-interactive) to show auto-selected state
 
 - **Historical Playback Performance**:
   - Implemented GeoJSON layer reuse to prevent map re-rendering
