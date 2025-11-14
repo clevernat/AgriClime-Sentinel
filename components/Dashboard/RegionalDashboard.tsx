@@ -115,28 +115,28 @@ export default function RegionalDashboard({
     if (!loading && data && initialSection) {
       // Wait a bit for the DOM to render
       setTimeout(() => {
-        let targetRef: React.RefObject<HTMLDivElement> | undefined = undefined;
+        let targetElement: HTMLDivElement | null = null;
 
         switch (initialSection) {
           case "crop-risk":
-            targetRef = cropRiskRef;
+            targetElement = cropRiskRef.current;
             break;
           case "drought":
-            targetRef = droughtRef;
+            targetElement = droughtRef.current;
             break;
           case "soil-moisture":
-            targetRef = soilMoistureRef;
+            targetElement = soilMoistureRef.current;
             break;
           case "precipitation":
-            targetRef = precipitationRef;
+            targetElement = precipitationRef.current;
             break;
           case "temperature":
-            targetRef = temperatureRef;
+            targetElement = temperatureRef.current;
             break;
         }
 
-        if (targetRef?.current) {
-          targetRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       }, 300);
     }
