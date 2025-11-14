@@ -72,6 +72,7 @@ export default function Home() {
   // Use ref to track latest comparison mode state for event handlers
   const isComparisonModeRef = useRef(isComparisonMode);
   const selectedCountiesRef = useRef(selectedCountiesForComparison);
+  const selectedLayerRef = useRef(selectedLayer);
 
   // Keep refs in sync with state
   useEffect(() => {
@@ -82,6 +83,11 @@ export default function Home() {
   useEffect(() => {
     selectedCountiesRef.current = selectedCountiesForComparison;
   }, [selectedCountiesForComparison]);
+
+  useEffect(() => {
+    selectedLayerRef.current = selectedLayer;
+    console.log("📌 selectedLayerRef updated to:", selectedLayer);
+  }, [selectedLayer]);
 
   // Auto-update dashboard type when layer changes (ONLY when layer changes, not when county changes)
   useEffect(() => {
@@ -118,17 +124,18 @@ export default function Home() {
    * - Opens to the relevant tab/section for the selected layer
    */
   const handleCountyClick = useCallback(async (fips: string) => {
-    // Use ref to get the latest state value
+    // Use ref to get the latest state values (avoid stale closures)
     const currentComparisonMode = isComparisonModeRef.current;
     const currentSelectedCounties = selectedCountiesRef.current;
+    const currentSelectedLayer = selectedLayerRef.current;
 
     console.log("🗺️ County clicked:", fips, "Comparison mode (ref):", currentComparisonMode);
-    console.log("🎨 Current selected layer:", selectedLayer);
+    console.log("🎨 Current selected layer (from ref):", currentSelectedLayer);
 
-    // Get dashboard configuration for the selected layer
-    const layerConfig = getDashboardConfigForLayer(selectedLayer);
+    // Get dashboard configuration for the selected layer (use ref to avoid stale closure)
+    const layerConfig = getDashboardConfigForLayer(currentSelectedLayer);
     console.log("📊 Layer config:", layerConfig);
-    console.log("📊 Auto-setting dashboard type to:", layerConfig.dashboardType, "for layer:", selectedLayer);
+    console.log("📊 Auto-setting dashboard type to:", layerConfig.dashboardType, "for layer:", currentSelectedLayer);
 
     // Fetch only the clicked county (fast, <100ms)
     try {
@@ -216,7 +223,7 @@ export default function Home() {
         }, 150);
       }
     }
-  }, [selectedLayer]);
+  }, []); // Empty dependency array - use refs to avoid stale closures
 
   const handleCloseDashboard = () => {
     setSelectedCounty(null);
