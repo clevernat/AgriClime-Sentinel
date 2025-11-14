@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AgriClime Sentinel - Climate Risk Dashboard for U.S. Agriculture",
+  title: "AgriClime Sentinel - Advanced Climate & Atmospheric Science Platform",
   description:
-    "Real-time climate risk monitoring platform for U.S. agricultural security. Track drought, soil moisture, temperature anomalies, and crop yield risks across all U.S. counties.",
+    "Dual-mode climate monitoring platform combining agricultural risk assessment with atmospheric science. Track weather alerts, severe weather indices, air quality, climate trends, drought, soil moisture, and crop risks across all 3,221 U.S. counties with 55 years of historical data.",
   icons: {
     icon: [
       {
