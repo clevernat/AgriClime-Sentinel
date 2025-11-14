@@ -170,7 +170,7 @@ export default function CountyMap({
             // Access feature from the layer
             const feature = (layer as any).feature;
             const fips = feature?.properties?.fips;
-            const data = dataMap.get(fips);
+            const data = dataMap.get(fips) as Record<string, any> | undefined;
             const value = data?.[valueField];
             const color =
               value !== null && value !== undefined
@@ -219,7 +219,7 @@ export default function CountyMap({
         } as GeoJSON.FeatureCollection,
         {
           style: (feature) => {
-            const data = feature?.properties?.data;
+            const data = feature?.properties?.data as Record<string, any> | undefined;
             const value = data?.[valueField];
             const color =
               value !== null && value !== undefined
@@ -239,7 +239,7 @@ export default function CountyMap({
             const fips = feature.properties.fips;
             const name = feature.properties.name;
             const state = feature.properties.state;
-            const data = feature.properties.data;
+            const data = feature.properties.data as Record<string, any> | undefined;
             const value = data?.[valueField];
 
             // Add tooltip
