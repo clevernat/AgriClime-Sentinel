@@ -17,23 +17,462 @@ Experience the full platform with real-time atmospheric data, historical playbac
 
 ## 📸 Screenshots
 
-### Interactive Map View
+> **Note:** See [SCREENSHOT_GUIDE.md](SCREENSHOT_GUIDE.md) for detailed instructions on capturing all 46 screenshots.
 
-![Interactive Map View](screenshots/map-view.png)
+---
 
-_Interactive map showing 3,221 US counties with climate data layers, historical playback (1970-2025), and multi-county comparison mode with visual feedback_
+### 🗺️ Interactive Map & Data Layers
 
-### Atmospheric Science Dashboard
+<table>
+<tr>
+<td width="50%">
 
-![Atmospheric Science Dashboard](screenshots/dashboard-overview.png)
+#### Default Map View
+![Default Map View](screenshots/map-default-view.png)
+*Interactive map showing all 3,221 US counties with default drought status layer*
 
-_Real-time weather alerts, severe weather indices, air quality monitoring, and 55-year climate trend analysis with statistical significance testing_
+</td>
+<td width="50%">
 
-### Multi-County Comparison Dashboard
+#### Drought Status Layer
+![Drought Layer](screenshots/map-layer-drought.png)
+*Color-coded drought severity (D0-D4) across all counties*
 
-![Comparison Dashboard](screenshots/comparison-dashboard.png)
+</td>
+</tr>
+<tr>
+<td width="50%">
 
-_Side-by-side comparison of up to 5 counties with interactive charts and detailed metrics table showing weather alerts, severe weather indices, air quality, and temperature trends_
+#### 30-Day Precipitation
+![Precipitation Layer](screenshots/map-layer-precipitation.png)
+*Total rainfall accumulation over the last 30 days*
+
+</td>
+<td width="50%">
+
+#### Temperature Anomaly
+![Temperature Layer](screenshots/map-layer-temperature.png)
+*Deviation from 5-year baseline temperatures*
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+#### Soil Moisture Levels
+![Soil Moisture Layer](screenshots/map-layer-soil-moisture.png)
+*Soil moisture at 0-10cm depth for agricultural monitoring*
+
+</td>
+<td width="50%">
+
+#### Crop Risk Assessment
+![Crop Risk Layer](screenshots/map-layer-crop-risk.png)
+*Agricultural risk scores by crop type (Corn, Wheat, Soybeans, Cotton, Rice)*
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+
+#### NEXRAD Weather Radar Overlay
+![Radar Overlay](screenshots/map-with-radar.png)
+*Real-time NEXRAD radar data overlaid on county map with adjustable opacity*
+
+</td>
+</tr>
+</table>
+
+---
+
+### ⏰ Historical Playback & Time-Series Analysis
+
+<table>
+<tr>
+<td width="50%">
+
+#### Historical Mode Controls
+![Historical Controls](screenshots/historical-mode-controls.png)
+*Time slider with play/pause controls for 55-year historical data (1970-2025)*
+
+</td>
+<td width="50%">
+
+#### Historical Data: 1970
+![Historical 1970](screenshots/historical-mode-1970.png)
+*Climate data from 1970 with smooth color transitions*
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+#### Historical Data: 2000
+![Historical 2000](screenshots/historical-mode-2000.png)
+*Climate patterns from 2000 showing warming trends*
+
+</td>
+<td width="50%">
+
+#### Historical Data: 2025
+![Historical 2025](screenshots/historical-mode-2025.png)
+*Current climate data (2025) for comparison*
+
+</td>
+</tr>
+</table>
+
+---
+
+### 🔄 Multi-County Comparison Mode
+
+<table>
+<tr>
+<td width="50%">
+
+#### Comparison Mode Banner
+![Comparison Banner](screenshots/comparison-mode-banner.png)
+*Blue pulsing banner indicating active comparison mode (up to 5 counties)*
+
+</td>
+<td width="50%">
+
+#### County Selection
+![County Selection](screenshots/comparison-mode-selecting.png)
+*Visual feedback when selecting counties for comparison*
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+#### Comparison Dashboard - Overview
+![Comparison Overview](screenshots/comparison-dashboard-overview.png)
+*Bar charts comparing Weather Alerts, Severe Weather (CAPE), Air Quality (AQI), and Temperature Trends*
+
+</td>
+<td width="50%">
+
+#### Comparison Dashboard - Detailed Metrics
+![Comparison Detailed](screenshots/comparison-dashboard-detailed.png)
+*Detailed metrics table with dark headers and bold values for easy comparison*
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+
+#### Multi-County Selector
+![Multi-County Selector](screenshots/multi-county-selector.png)
+*County selection panel with remove buttons and comparison trigger*
+
+</td>
+</tr>
+</table>
+
+---
+
+### 🌾 Agricultural Dashboard
+
+<table>
+<tr>
+<td colspan="2">
+
+#### Agricultural Dashboard Overview
+![Agricultural Dashboard](screenshots/agricultural-dashboard-overview.png)
+*Comprehensive agricultural climate risk assessment with drought status, precipitation, temperature, soil moisture, and crop risk*
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+#### Drought Status Section
+![Drought Section](screenshots/agricultural-drought-section.png)
+*Color-coded drought severity indicator with description*
+
+</td>
+<td width="50%">
+
+#### Precipitation Trends
+![Precipitation Chart](screenshots/agricultural-precipitation-chart.png)
+*30-day precipitation line chart with daily data*
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+#### Temperature Trends
+![Temperature Chart](screenshots/agricultural-temperature-chart.png)
+*Temperature anomaly visualization over time*
+
+</td>
+<td width="50%">
+
+#### Soil Moisture Analysis
+![Soil Moisture](screenshots/agricultural-soil-moisture.png)
+*Current soil moisture levels for crop planning*
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+
+#### Crop Risk Assessment
+![Crop Risk](screenshots/agricultural-crop-risk.png)
+*Risk scores for 5 major crops: Corn, Wheat, Soybeans, Cotton, and Rice*
+
+</td>
+</tr>
+</table>
+
+---
+
+### 🌪️ Atmospheric Science Dashboard
+
+<table>
+<tr>
+<td colspan="2">
+
+#### Dashboard Header & Navigation
+![Atmospheric Header](screenshots/atmospheric-dashboard-header.png)
+*County information, coordinates, export buttons, and 5-tab navigation (Alerts, Severe, Air Quality, Trends, Forecast)*
+
+</td>
+</tr>
+</table>
+
+#### Tab 1: Weather Alerts
+
+<table>
+<tr>
+<td width="50%">
+
+##### Active Weather Alerts
+![Weather Alerts](screenshots/atmospheric-alerts-tab.png)
+*Real-time NOAA weather alerts with severity levels, descriptions, and affected areas*
+
+</td>
+<td width="50%">
+
+##### No Alerts State
+![No Alerts](screenshots/atmospheric-alerts-no-data.png)
+*Clean empty state when no active alerts*
+
+</td>
+</tr>
+</table>
+
+#### Tab 2: Severe Weather Indices
+
+<table>
+<tr>
+<td width="50%">
+
+##### Severe Weather Indices
+![Severe Weather](screenshots/atmospheric-severe-tab.png)
+*8 atmospheric instability indices from NOAA HRRR model: CAPE, Helicity, Shear, LI, K-Index, Total Totals, SWEAT, BRN*
+
+</td>
+<td width="50%">
+
+##### Indices Detail View
+![Indices Detail](screenshots/atmospheric-severe-indices-detail.png)
+*Color-coded severity levels with values and interpretations*
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+
+##### Skew-T Log-P Diagram
+![Skew-T Diagram](screenshots/atmospheric-skewt-diagram.png)
+*Atmospheric sounding visualization with temperature and dew point profiles*
+
+</td>
+</tr>
+</table>
+
+#### Tab 3: Air Quality
+
+<table>
+<tr>
+<td width="50%">
+
+##### Overall Air Quality Index
+![Air Quality AQI](screenshots/atmospheric-airquality-tab.png)
+*Large AQI number with color-coded category (Good, Moderate, Unhealthy, etc.)*
+
+</td>
+<td width="50%">
+
+##### Individual Pollutants
+![Pollutants](screenshots/atmospheric-airquality-pollutants.png)
+*6 EPA criteria pollutants: PM2.5, PM10, O₃, NO₂, SO₂, CO*
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+##### Pollutant Comparison Chart
+![AQ Chart](screenshots/atmospheric-airquality-chart.png)
+*Bar chart comparing all pollutant AQI values*
+
+</td>
+<td width="50%">
+
+##### No Air Quality Data
+![No AQ Data](screenshots/atmospheric-airquality-no-data.png)
+*Empty state for rural areas without EPA monitoring stations*
+
+</td>
+</tr>
+</table>
+
+#### Tab 4: Climate Trends
+
+<table>
+<tr>
+<td width="50%">
+
+##### Statistical Trend Analysis
+![Trends Analysis](screenshots/atmospheric-trends-tab.png)
+*55-year climate trend with slope, p-value, R², percent change, and statistical significance*
+
+</td>
+<td width="50%">
+
+##### Temperature Trend Chart
+![Trends Chart](screenshots/atmospheric-trends-chart.png)
+*Line chart showing annual temperatures from 1970-2025 with trend line*
+
+</td>
+</tr>
+</table>
+
+#### Tab 5: Weather Forecast
+
+<table>
+<tr>
+<td width="50%">
+
+##### 7-Day Forecast
+![Forecast](screenshots/atmospheric-forecast-tab.png)
+*NOAA NWS 7-day forecast with temperatures and weather descriptions*
+
+</td>
+<td width="50%">
+
+##### No Forecast Data
+![No Forecast](screenshots/atmospheric-forecast-no-data.png)
+*Empty state when forecast data unavailable*
+
+</td>
+</tr>
+</table>
+
+#### Export & Data Tools
+
+<table>
+<tr>
+<td colspan="2">
+
+##### Export Buttons
+![Export Buttons](screenshots/atmospheric-export-buttons.png)
+*CSV, JSON, and PDF export options for all atmospheric data*
+
+</td>
+</tr>
+</table>
+
+---
+
+### 📱 Mobile Responsiveness
+
+<table>
+<tr>
+<td width="50%">
+
+#### Mobile Map View
+![Mobile Map](screenshots/mobile-map-view.png)
+*Responsive map layout optimized for mobile devices*
+
+</td>
+<td width="50%">
+
+#### Mobile Sidebar
+![Mobile Sidebar](screenshots/mobile-sidebar.png)
+*Touch-friendly controls and layer selector*
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+#### Mobile Dashboard
+![Mobile Dashboard](screenshots/mobile-dashboard.png)
+*Scrollable dashboard with responsive charts*
+
+</td>
+<td width="50%">
+
+#### Mobile Comparison
+![Mobile Comparison](screenshots/mobile-comparison.png)
+*Comparison mode optimized for mobile screens*
+
+</td>
+</tr>
+</table>
+
+---
+
+### 🎨 UI Components
+
+<table>
+<tr>
+<td width="50%">
+
+#### Agricultural Mode Header
+![Agricultural Header](screenshots/header-agricultural-mode.png)
+*Header with Agricultural mode toggle active*
+
+</td>
+<td width="50%">
+
+#### Atmospheric Mode Header
+![Atmospheric Header](screenshots/header-atmospheric-mode.png)
+*Header with Atmospheric Science mode toggle active*
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+#### Layer Selector Panel
+![Layer Selector](screenshots/layer-selector-panel.png)
+*Dropdown menu with all data layers and crop type selector*
+
+</td>
+<td width="50%">
+
+#### Map Legend
+![Legend](screenshots/legend-component.png)
+*Color scale and value ranges for current layer*
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+
+#### Info Panel
+![Info Panel](screenshots/info-panel.png)
+*"About This Tool" description and usage instructions*
+
+</td>
+</tr>
+</table>
 
 ---
 
