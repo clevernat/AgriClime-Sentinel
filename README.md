@@ -571,6 +571,8 @@ AgriClime Sentinel uses a sophisticated **two-tier data architecture** that bala
 
 **Result:** Best of both worlds - fast exploration + accurate atmospheric analysis! 🚀
 
+**NEW:** Layer-aware data fetching ensures you always see the right data type for your selected layer!
+
 ### **User Flow**
 
 ```
@@ -596,6 +598,8 @@ AgriClime Sentinel uses a sophisticated **two-tier data architecture** that bala
    ├─ Severe Weather Indices (NOAA HRRR) → CAPE, SRH, STP, SCP
    ├─ Air Quality (EPA AirNow) → 6 criteria pollutants
    └─ Climate Trends (Open-Meteo) → 55-year statistical analysis ⭐ AUTO-SELECTED TAB
+       ├─ IF PRECIPITATION LAYER: Shows precipitation trends (mm/year, blue charts)
+       └─ IF TEMPERATURE LAYER: Shows temperature trends (°C/year, orange charts)
    └─ Visual Badge: "Viewing: 🌡️ Temperature Trends" or "Viewing: 🌧️ Precipitation & Climate"
 
    IF AGRICULTURAL LAYER (Drought, Soil Moisture, Crop Risk):
@@ -606,7 +610,7 @@ AgriClime Sentinel uses a sophisticated **two-tier data architecture** that bala
    ├─ Soil Moisture → Land-atmosphere coupling ⭐ AUTO-SCROLLED TO RELEVANT SECTION
    └─ Visual Badge: "Viewing: 🏜️ Drought Analysis" or "Viewing: 💧 Soil Moisture Analysis"
 
-Result: Intelligent, context-aware dashboard opening with zero manual switching required!
+Result: Intelligent, context-aware dashboard opening AND data fetching with zero manual switching required!
 ```
 
 **📚 For detailed architecture documentation, see:** [`docs/DATA_ARCHITECTURE.md`](docs/DATA_ARCHITECTURE.md)
@@ -720,21 +724,70 @@ Risk Score = (Rainfall Deficit × 0.30) +
 
 ## 🎨 Recent Improvements (November 2025)
 
-### Smart Dashboard Opening Based on Map Layer Selection 🎯
+### Layer-Aware Dashboards - Context-Sensitive Data Display 🎯
 
-- **Intelligent Layer-to-Dashboard Mapping**: Dashboard type automatically determined by selected map layer
+**NEW:** Dashboards now show data that matches your selected map layer!
+
+- **Smart Dashboard Opening**: Dashboard type automatically determined by selected map layer
   - **Atmospheric Layers** (Temperature, Precipitation) → **Atmospheric Science Dashboard**
   - **Agricultural Layers** (Drought, Soil Moisture, Crop Risk) → **Agricultural Dashboard**
   - **Automatic Tab/Section Selection**: Opens to the most relevant tab based on layer context
-    - Temperature layer → Climate Trends tab with 55-year temperature analysis
-    - Precipitation layer → Climate Trends tab with precipitation patterns
-    - Drought layer → Drought section in Agricultural Dashboard
-    - Soil Moisture layer → Soil Moisture section in Agricultural Dashboard
-    - Crop Risk layer → Crop Risk section in Agricultural Dashboard
   - **Visual Context Indicators**: Badge shows current layer context (e.g., "Viewing: 🌡️ Temperature Trends")
-  - **Read-Only Dashboard Mode Indicator**: Shows which dashboard mode is active (auto-selected, not manually clickable)
-  - **Stale Closure Bug Fix**: Implemented useRef pattern to prevent React closure issues with layer selection
-  - **Seamless User Experience**: No manual dashboard switching required - system intelligently routes to correct view
+  - **Seamless User Experience**: No manual dashboard switching required
+
+- **Layer-Aware Data Fetching**: Dashboards fetch and display data matching the selected layer
+  - **Precipitation Layer** → Shows 55-year **precipitation trends** (not temperature)
+    - Chart title: "Precipitation Trend Summary"
+    - Y-axis: "Precipitation (mm)"
+    - Rate of change: "mm per year"
+    - Blue color scheme with CloudRain icon 🌧️
+  - **Temperature Layer** → Shows 55-year **temperature trends**
+    - Chart title: "Temperature Trend Summary"
+    - Y-axis: "Temperature (°C)"
+    - Rate of change: "°C per year"
+    - Orange color scheme with Thermometer icon 🌡️
+  - **Drought Layer** → Scrolls to drought analysis section
+  - **Soil Moisture Layer** → Highlights soil moisture data
+  - **Crop Risk Layer** → Emphasizes crop risk factors (GDD, extreme heat)
+
+- **Comparison Dashboard Integration**: Multi-county comparisons also respect selected layer
+  - Compare precipitation trends when precipitation layer is selected
+  - Compare temperature trends when temperature layer is selected
+  - Automatically refetches data when you change layers
+
+- **User Experience Examples**:
+  ```
+  Example 1: Precipitation Analysis
+  1. Select "30-Day Precipitation" layer on map
+  2. Click on Los Angeles County
+  3. Atmospheric Dashboard opens to Climate Trends tab
+  4. Dashboard shows 55-year PRECIPITATION trends (not temperature!)
+  5. Chart displays "Precipitation Trend Summary" with blue colors
+  6. Y-axis shows "Precipitation (mm)", rate shows "mm per year"
+
+  Example 2: Temperature Analysis
+  1. Select "Temperature Anomaly" layer on map
+  2. Click on same Los Angeles County
+  3. Atmospheric Dashboard opens to Climate Trends tab
+  4. Dashboard shows 55-year TEMPERATURE trends
+  5. Chart displays "Temperature Trend Summary" with orange colors
+  6. Y-axis shows "Temperature (°C)", rate shows "°C per year"
+
+  Example 3: Multi-County Comparison
+  1. Select "Precipitation" layer
+  2. Enable Comparison Mode
+  3. Select 3 counties
+  4. Comparison Dashboard shows precipitation trends for all 3
+  5. Switch to "Temperature" layer
+  6. Dashboard automatically refetches and shows temperature trends!
+  ```
+
+- **Technical Implementation**:
+  - Dynamic API calls: `/api/climate-trends?fips=${fips}&type=${climateType}`
+  - Climate type determined from selected layer (precipitation_30day → "precipitation", temperature_anomaly → "temperature")
+  - All chart elements update dynamically (titles, labels, colors, icons)
+  - Added `selectedLayer` to dependency arrays for automatic refetching
+  - Stale closure bug fix using useRef pattern
 
 ### Historical Playback & Time-Series Analysis 🕰️
 
