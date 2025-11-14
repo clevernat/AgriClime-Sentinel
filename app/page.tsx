@@ -89,8 +89,15 @@ export default function Home() {
       const layerConfig = getDashboardConfigForLayer(selectedLayer);
       console.log("🔄 Layer changed to:", selectedLayer, "→ Setting default dashboard type to:", layerConfig.dashboardType);
       setDashboardType(layerConfig.dashboardType);
+    } else {
+      console.log("⏭️ Skipping dashboard type update - county is selected:", selectedCounty);
     }
   }, [selectedLayer, selectedCounty]);
+
+  // Debug: Track dashboard type changes
+  useEffect(() => {
+    console.log("🎯 Dashboard type changed to:", dashboardType);
+  }, [dashboardType]);
 
   // Historical playback state
   const [isHistoricalMode, setIsHistoricalMode] = useState(false);
@@ -120,9 +127,11 @@ export default function Home() {
     const currentSelectedCounties = selectedCountiesRef.current;
 
     console.log("🗺️ County clicked:", fips, "Comparison mode (ref):", currentComparisonMode);
+    console.log("🎨 Current selected layer:", selectedLayer);
 
     // Get dashboard configuration for the selected layer
     const layerConfig = getDashboardConfigForLayer(selectedLayer);
+    console.log("📊 Layer config:", layerConfig);
     console.log("📊 Auto-setting dashboard type to:", layerConfig.dashboardType, "for layer:", selectedLayer);
 
     // Fetch only the clicked county (fast, <100ms)
