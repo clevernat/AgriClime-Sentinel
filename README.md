@@ -9,7 +9,9 @@
 
 ## 🚀 Live Demo
 
-**[https://agri-clime-sentinel-ng1cxkfz1-clevernats-projects.vercel.app](https://agri-clime-sentinel-ng1cxkfz1-clevernats-projects.vercel.app)**
+**[https://agri-clime-sentinel.vercel.app](https://agri-clime-sentinel.vercel.app)**
+
+Experience the full platform with real-time atmospheric data, historical playback, and multi-county comparison tools.
 
 ---
 
@@ -19,19 +21,13 @@
 
 ![Interactive Map View](screenshots/map-view.png)
 
-_Interactive map showing 3,221 US counties with climate data layers_
+_Interactive map showing 3,221 US counties with climate data layers, historical playback (1970-2025), and multi-county comparison mode_
 
 ### Atmospheric Science Dashboard
 
 ![Atmospheric Science Dashboard](screenshots/dashboard-overview.png)
 
-_Real-time weather alerts, severe weather indices, air quality, and climate trends_
-
-### Climate Trends Analysis
-
-![Climate Trends Analysis](screenshots/climate-trends.png)
-
-_55 years of historical temperature data with statistical analysis_
+_Real-time weather alerts, severe weather indices, air quality monitoring, and 55-year climate trend analysis with statistical significance testing_
 
 ---
 
@@ -259,6 +255,27 @@ Risk Score = (Rainfall Deficit × 0.30) +
 ---
 
 ## 🎨 Recent Improvements (November 2025)
+
+### Historical Playback & Time-Series Analysis 🕰️
+
+- **Smooth Historical Data Playback (1970-2025)**: Navigate through 55 years of climate history
+  - **Interactive Time Slider**: Drag slider or use Play/Pause controls for animated playback
+  - **Smooth Color Transitions**: CSS-based fade effects (0.8s) prevent map flickering during year changes
+  - **Layer Reuse Optimization**: GeoJSON layers update in-place for seamless performance
+  - **Visual Year Badge**: Purple "Historical Data: YEAR" indicator with fade-in/fade-out effects
+  - **All Data Layers Supported**: Works with drought, temperature, precipitation, soil moisture, and crop risk
+  - **Realistic Climate Patterns**: Historical data generation based on NOAA climate trends and warming patterns
+
+### Multi-County Comparison Mode 🔄
+
+- **Side-by-Side County Analysis**: Compare up to 5 counties simultaneously
+  - **Toggle Comparison Mode**: Blue pulsing banner indicates active comparison mode
+  - **Click-to-Add Counties**: Click counties on map to add them to comparison list (instead of opening dashboard)
+  - **Visual Feedback**: Selected counties highlighted with count badge
+  - **Comparison Dashboard**: Dual-tab interface with Overview charts and Detailed Metrics table
+  - **Chart Visualizations**: Bar charts for Weather Alerts, Severe Weather (CAPE), Air Quality (AQI), and Temperature Trends
+  - **Enhanced Readability**: Dark table headers, bold text, proper chart margins and labels
+  - **Fixed State Management**: useRef pattern prevents React closure issues with county selection
 
 ### Mobile Responsiveness Overhaul 📱
 
