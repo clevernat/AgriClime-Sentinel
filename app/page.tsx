@@ -674,6 +674,7 @@ export default function Home() {
           counties={selectedCountiesForComparison}
           onClose={handleCloseComparison}
           dashboardType={dashboardType}
+          selectedLayer={selectedLayer}
         />
       )}
 

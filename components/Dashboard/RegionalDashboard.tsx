@@ -40,11 +40,16 @@ export default function RegionalDashboard({
   } | null>(null);
 
   // Refs for scrolling to sections
-  const cropRiskRef = useRef<HTMLDivElement>(null);
-  const droughtRef = useRef<HTMLDivElement>(null);
-  const soilMoistureRef = useRef<HTMLDivElement>(null);
-  const precipitationRef = useRef<HTMLDivElement>(null);
-  const temperatureRef = useRef<HTMLDivElement>(null);
+  // Note: Agricultural Dashboard shows comprehensive data in 3 main sections:
+  // 1. Current Conditions (temperature, soil moisture, GDD, extreme heat)
+  // 2. Precipitation vs Historical Average
+  // 3. Historical Drought Trends
+  // We map layer types to the most relevant section:
+  const cropRiskRef = useRef<HTMLDivElement>(null);      // Maps to Current Conditions (GDD, extreme heat)
+  const droughtRef = useRef<HTMLDivElement>(null);       // Maps to Historical Drought Trends
+  const soilMoistureRef = useRef<HTMLDivElement>(null);  // Maps to Current Conditions (soil moisture)
+  const precipitationRef = useRef<HTMLDivElement>(null); // Maps to Precipitation section
+  const temperatureRef = useRef<HTMLDivElement>(null);   // Maps to Current Conditions (temperature)
 
   /**
    * Helper function to fetch with timeout
@@ -119,13 +124,15 @@ export default function RegionalDashboard({
 
         switch (initialSection) {
           case "crop-risk":
-            targetElement = cropRiskRef.current;
+            // Crop risk maps to Current Conditions (shows GDD and extreme heat)
+            targetElement = cropRiskRef.current || temperatureRef.current;
             break;
           case "drought":
             targetElement = droughtRef.current;
             break;
           case "soil-moisture":
-            targetElement = soilMoistureRef.current;
+            // Soil moisture maps to Current Conditions (shows soil moisture %)
+            targetElement = soilMoistureRef.current || temperatureRef.current;
             break;
           case "precipitation":
             targetElement = precipitationRef.current;
@@ -246,6 +253,12 @@ export default function RegionalDashboard({
         >
           {/* Current Conditions */}
           <div
+            ref={(el) => {
+              // Assign to multiple refs since this section covers temperature, soil moisture, and crop risk
+              temperatureRef.current = el;
+              soilMoistureRef.current = el;
+              cropRiskRef.current = el;
+            }}
             className="bg-white rounded-lg sm:rounded-xl shadow-md p-4 sm:p-6 animate-slideUp"
             style={{ animationDelay: "0.1s", animationFillMode: "both" }}
           >
@@ -305,6 +318,7 @@ export default function RegionalDashboard({
 
           {/* Precipitation Comparison */}
           <div
+            ref={precipitationRef}
             className="bg-white rounded-xl shadow-md p-6 animate-slideUp"
             style={{ animationDelay: "0.2s", animationFillMode: "both" }}
           >
@@ -375,6 +389,7 @@ export default function RegionalDashboard({
 
           {/* Historical Drought Trends */}
           <div
+            ref={droughtRef}
             className="bg-white rounded-xl shadow-md p-6 animate-slideUp"
             style={{ animationDelay: "0.3s", animationFillMode: "both" }}
           >

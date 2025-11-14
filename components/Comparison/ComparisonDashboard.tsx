@@ -27,6 +27,7 @@ interface ComparisonDashboardProps {
   counties: CountyData[];
   onClose: () => void;
   dashboardType: "agricultural" | "atmospheric";
+  selectedLayer?: string;
 }
 
 interface CountyMetrics {
@@ -45,6 +46,7 @@ export default function ComparisonDashboard({
   counties,
   onClose,
   dashboardType,
+  selectedLayer,
 }: ComparisonDashboardProps) {
   const [metrics, setMetrics] = useState<CountyMetrics[]>([]);
   const [activeTab, setActiveTab] = useState<"overview" | "detailed">("overview");
@@ -55,6 +57,11 @@ export default function ComparisonDashboard({
     // Fetch data for all counties in parallel
     const fetchAllCountyData = async () => {
       console.log("🔄 ComparisonDashboard: Fetching data for", counties.length, "counties");
+      console.log("🎨 Selected layer:", selectedLayer);
+
+      // Determine climate data type based on selected layer
+      const climateType = selectedLayer === "precipitation_30day" ? "precipitation" : "temperature";
+      console.log("🌡️ Using climate type:", climateType);
 
       const promises = counties.map(async (county) => {
         console.log("📍 Fetching data for:", county.name, county.state, "FIPS:", county.fips);
@@ -65,7 +72,7 @@ export default function ComparisonDashboard({
             fetch(`/api/weather-alerts?lat=${county.latitude}&lon=${county.longitude}`),
             fetch(`/api/severe-weather?lat=${county.latitude}&lon=${county.longitude}`),
             fetch(`/api/air-quality?lat=${county.latitude}&lon=${county.longitude}`),
-            fetch(`/api/climate-trends?fips=${county.fips}&type=temperature`),
+            fetch(`/api/climate-trends?fips=${county.fips}&type=${climateType}`),
           ]);
 
           const [alertsData, severeData, aqData, trendsData] = await Promise.all([
@@ -132,7 +139,7 @@ export default function ComparisonDashboard({
     };
 
     fetchAllCountyData();
-  }, [counties]);
+  }, [counties, selectedLayer]); // Refetch when layer changes
 
   // Prepare chart data
   const alertsChartData = metrics.map((m) => ({

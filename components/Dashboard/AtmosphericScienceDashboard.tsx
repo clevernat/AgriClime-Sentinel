@@ -168,19 +168,23 @@ export default function AtmosphericScienceDashboard({
    * 1. Weather Alerts (NOAA)
    * 2. Severe Weather Indices (HRRR Model)
    * 3. Air Quality (EPA AirNow)
-   * 4. Climate Trends (Open-Meteo Historical)
+   * 4. Climate Trends (Open-Meteo Historical) - type based on selected layer
    */
   const fetchAtmosphericData = useCallback(async () => {
     setLoading(true);
     setLoadingProgress("Fetching weather alerts...");
 
     try {
+      // Determine climate data type based on selected layer
+      const climateType = selectedLayer === "precipitation_30day" ? "precipitation" : "temperature";
+      console.log("🌡️ Fetching climate trends for type:", climateType, "based on layer:", selectedLayer);
+
       // Fetch all data in parallel with timeout protection
       const fetchPromises = [
         fetchWithTimeout(`/api/weather-alerts?lat=${latitude}&lon=${longitude}`, 10000),
         fetchWithTimeout(`/api/severe-weather?lat=${latitude}&lon=${longitude}`, 10000),
         fetchWithTimeout(`/api/air-quality?lat=${latitude}&lon=${longitude}`, 10000),
-        fetchWithTimeout(`/api/climate-trends?fips=${fips}&type=temperature`, 15000), // Climate trends may take longer
+        fetchWithTimeout(`/api/climate-trends?fips=${fips}&type=${climateType}`, 15000), // Climate trends type based on layer
         fetchWithTimeout(`/api/weather-forecast?lat=${latitude}&lon=${longitude}`, 10000), // Weather forecast
       ];
 
@@ -249,7 +253,7 @@ export default function AtmosphericScienceDashboard({
     } finally {
       setLoading(false);
     }
-  }, [fips, latitude, longitude]);
+  }, [fips, latitude, longitude, selectedLayer]); // Added selectedLayer to refetch when layer changes
 
   useEffect(() => {
     fetchAtmosphericData();
@@ -1185,11 +1189,12 @@ export default function AtmosphericScienceDashboard({
                 {/* Trend Summary */}
                 <div className="bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 rounded-lg sm:rounded-xl p-4 sm:p-6 md:p-8 shadow-lg">
                   <h4 className="text-base sm:text-lg md:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 flex items-center">
-                    <TrendingUp
-                      className="mr-2 sm:mr-3 text-blue-600"
-                      size={20}
-                    />
-                    Temperature Trend Summary
+                    {climateTrends.type === "precipitation" ? (
+                      <CloudRain className="mr-2 sm:mr-3 text-blue-600" size={20} />
+                    ) : (
+                      <Thermometer className="mr-2 sm:mr-3 text-orange-600" size={20} />
+                    )}
+                    {climateTrends.type === "precipitation" ? "Precipitation" : "Temperature"} Trend Summary
                   </h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6">
                     <div className="text-center p-3 sm:p-4 md:p-5 bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
@@ -1224,7 +1229,9 @@ export default function AtmosphericScienceDashboard({
                         {climateTrends.trend.slope > 0 ? "+" : ""}
                         {climateTrends.trend.slope.toFixed(3)}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">°C per year</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {climateTrends.type === "precipitation" ? "mm per year" : "°C per year"}
+                      </p>
                     </div>
                     <div className="text-center p-3 sm:p-4 md:p-5 bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
                       <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 sm:mb-2">
@@ -1279,17 +1286,17 @@ export default function AtmosphericScienceDashboard({
                   <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-3 sm:mb-4">
                       <h4 className="text-base sm:text-lg md:text-xl font-bold text-gray-800">
-                        Temperature Trend ({climateTrends.period.startYear} -{" "}
+                        {climateTrends.type === "precipitation" ? "Precipitation" : "Temperature"} Trend ({climateTrends.period.startYear} -{" "}
                         {climateTrends.period.endYear})
                       </h4>
                       <ChartExportButton
-                        chartId="temperature-trend-chart"
-                        chartName="Temperature-Trend"
+                        chartId={climateTrends.type === "precipitation" ? "precipitation-trend-chart" : "temperature-trend-chart"}
+                        chartName={climateTrends.type === "precipitation" ? "Precipitation-Trend" : "Temperature-Trend"}
                         countyName={countyName}
                         state={state}
                       />
                     </div>
-                    <div id="temperature-trend-chart">
+                    <div id={climateTrends.type === "precipitation" ? "precipitation-trend-chart" : "temperature-trend-chart"}>
                       <ResponsiveContainer
                         width="100%"
                         height={300}
@@ -1308,7 +1315,7 @@ export default function AtmosphericScienceDashboard({
                           />
                           <YAxis
                             label={{
-                              value: "Temperature (°C)",
+                              value: climateTrends.type === "precipitation" ? "Precipitation (mm)" : "Temperature (°C)",
                               angle: -90,
                               position: "insideLeft",
                               style: { fontSize: 11, fontWeight: 600 },
@@ -1340,10 +1347,10 @@ export default function AtmosphericScienceDashboard({
                           <Line
                             type="monotone"
                             dataKey="value"
-                            stroke="#3B82F6"
-                            name="Annual Average Temperature"
+                            stroke={climateTrends.type === "precipitation" ? "#3B82F6" : "#F97316"}
+                            name={climateTrends.type === "precipitation" ? "Annual Precipitation" : "Annual Average Temperature"}
                             strokeWidth={2}
-                            dot={{ fill: "#3B82F6", r: 1.5 }}
+                            dot={{ fill: climateTrends.type === "precipitation" ? "#3B82F6" : "#F97316", r: 1.5 }}
                             activeDot={{ r: 5 }}
                             className="sm:!stroke-[2.5] md:!stroke-[3]"
                           />
